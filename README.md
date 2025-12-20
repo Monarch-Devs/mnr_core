@@ -25,4 +25,4 @@ I'm primarily a financially poor person, but ethically I can't force people to g
 ## Links
 - [Discord](https://discord.gg/WKtk65yBC6)
 - [Docs](https://monarch-devs.com)
-- [GitHub](https://github.com/Monarch-Development)
+- [GitHub](https://github.com/Monarch-Devs)
