@@ -11,3 +11,17 @@ CREATE TABLE IF NOT EXISTS `users` (
     `last_login` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `characters` (
+    `charId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `userId` INT UNSIGNED NOT NULL,
+    `slot` TINYINT UNSIGNED NOT NULL,
+    `firstname` VARCHAR(50) NOT NULL,
+    `lastname` VARCHAR(50) NOT NULL,
+    `gender` ENUM('M', 'F', 'X') NOT NULL,
+    `origin` VARCHAR(50) NOT NULL,
+    `birthdate` DATE NOT NULL,
+    PRIMARY KEY (`charId`),
+    FOREIGN KEY (`userId`) REFERENCES `users`(`userId`) ON DELETE CASCADE,
+    UNIQUE KEY `unique_user_slot` (`userId`, `slot`)
+); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
