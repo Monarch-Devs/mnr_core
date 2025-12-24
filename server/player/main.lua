@@ -1,6 +1,7 @@
 local helpers = require 'server.player.helpers'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
+local ErrorFlags = require 'data.errors'
 
 GlobalState:set('OnlinePlayers', 0, true)
 Players = {}
@@ -35,6 +36,22 @@ local function onPlayerConnecting(name, _, deferrals)
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
+
+AddEventHandler('mnr_core:server:CreateCharacter', function(data)
+    local src = source
+
+
+end)
+
+RegisterNetEvent('mnr_core:server:SelectedCharacter', function(slot)
+    local src = source
+
+    if not Players[src] then
+        return
+    end
+
+
+end)
 
 local function onPlayerDropped(reason)
     local src = source
