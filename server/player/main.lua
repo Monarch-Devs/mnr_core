@@ -1,5 +1,6 @@
 local helpers = require 'server.player.helpers'
 local db = require 'server.player.db'
+local MnrPlayer = require 'server.player.class'
 
 local PRIMARY_IDENTIFIER = GetConvar('mnr:primary_identifier', 'license2')
 
@@ -25,11 +26,13 @@ local function onPlayerConnecting(name, _, deferrals)
 
     Wait(0)
 
-    if userId then
-        deferrals.done()
-    else
+    if not userId then
         deferrals.done(err)
+        return
     end
+
+    Players[src] = MnrPlayer.new(userId)
+    deferrals.done()
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
