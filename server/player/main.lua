@@ -2,8 +2,6 @@ local helpers = require 'server.player.helpers'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
-local PRIMARY_IDENTIFIER = GetConvar('mnr:primary_identifier', 'license2')
-
 GlobalState:set('onlinePlayers', 0, true)
 Players = {}
 
@@ -11,8 +9,8 @@ local function onPlayerConnecting(name, _, deferrals)
     local src = source
 
     local identifiers = helpers.getIdentifiersBySource(src)
-    if not identifiers[PRIMARY_IDENTIFIER] then
-        deferrals.done(('Hi %s, primary identifier not found. Missing "%s"'):format(name, PRIMARY_IDENTIFIER))
+    if not identifiers.license2 then
+        deferrals.done(('Hi %s. We didn\'t find a valid identifier (license2)'):format(name))
         return
     end
 
