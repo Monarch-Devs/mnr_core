@@ -1,3 +1,5 @@
+local ErrorFlags = require 'data.errors'
+
 local helpers = {}
 
 -- Identifiers retriever
