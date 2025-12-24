@@ -2,7 +2,7 @@ local helpers = require 'server.player.helpers'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
-GlobalState:set('onlinePlayers', 0, true)
+GlobalState:set('OnlinePlayers', 0, true)
 Players = {}
 
 local function onPlayerConnecting(name, _, deferrals)
@@ -31,6 +31,17 @@ local function onPlayerConnecting(name, _, deferrals)
 
     Players[src] = MnrPlayer.new(userId)
     deferrals.done()
+    GlobalState.OnlinePlayers += 1
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
+
+local function onPlayerDropped(reason)
+    local src = source
+
+    Players[src]:save()
+    Players[src] = nil
+    GlobalState.OnlinePlayers -= 1
+end
+
+AddEventHandler('playerDropped', onPlayerDropped)
