@@ -7,7 +7,7 @@ local CREATE_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam
 -- Database query used to register or update a user during login
 ---@todo Reduce query number
 ---@param identifiers table
----@return number, string
+---@return number | nil, string | nil
 function db.userLogin(identifiers)
     local userId = MySQL.prepare.await(GET_USER, {
         identifiers.license2,
