@@ -62,7 +62,7 @@ function helpers.isValidBirthdate(dateString)
 end
 
 -- [EXPERIMENTAL] Biography Validator (Flag system)
-function helpers.checkBio(data, ErrorFlags)
+function helpers.checkBio(data)
     local error_flag = 0
 
     data.firstname = helpers.capitalize(data.firstname)
