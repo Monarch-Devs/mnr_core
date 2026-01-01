@@ -5,7 +5,7 @@ local MnrPlayer = {}
 MnrPlayer.__index = MnrPlayer
 
 -- Constructor function
----@param userId number User ID retrieved from database (associated to identifiers)
+---@param userId number User ID retrieved from database
 function MnrPlayer.new(userId)
     return setmetatable({ userId = userId }, MnrPlayer)
 end

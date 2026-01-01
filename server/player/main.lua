@@ -3,6 +3,7 @@ local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
 GlobalState:set('OnlinePlayers', 0, true)
+
 Players = {}
 
 local function onPlayerConnecting(name, _, deferrals)
