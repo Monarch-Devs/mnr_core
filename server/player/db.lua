@@ -38,4 +38,34 @@ function db.userLogin(identifiers)
     end
 end
 
+local GET_USER_CHAR_SLOTS = 'SELECT `slots` FROM `char_slots` WHERE `userId` = ?'
+
+-- Database query used to get the maximum character slots for a user
+---@param userId number
+---@return number
+function db.getUserCharSlots(userId)
+    local slots = MySQL.prepare.await(GET_USER_CHAR_SLOTS, { userId })
+
+    return slots or 2
+end
+
+local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+-- Database query used to create a new character for a user
+---@param userId number
+---@param slot number
+---@param character table
+function db.createCharacter(userId, slot, character)
+    local charId = MySQL.prepare.await(CREATE_CHARACTER, {
+        userId,
+        slot,
+        character.firstname,
+        character.lastname,
+        character.gender,
+        character.origin,
+        character.birthdate
+    })
+
+    return charId
+end
+
 return db

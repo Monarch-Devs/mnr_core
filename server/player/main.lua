@@ -1,4 +1,4 @@
-local helpers = require 'server.player.helpers'
+local helper = require 'server.player.helpers'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
@@ -9,7 +9,7 @@ Players = {}
 local function onPlayerConnecting(name, _, deferrals)
     local src = source
 
-    local identifiers = helpers.getIdentifiersBySource(src)
+    local identifiers = helper.getIdentifiersBySource(src)
     if not identifiers.license2 then
         deferrals.done(('Hi %s. We didn\'t find a valid identifier (license2)'):format(name))
         return
@@ -37,10 +37,29 @@ end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
 
-AddEventHandler('mnr_core:server:CreateCharacter', function(data)
-    local src = source
+lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
+    if not Players[source] then
+        return false
+    end
 
+    local userId = Players[source].userId
+    local maxSlots = db.getUserCharSlots(userId)
+    if maxSlots < slot then
+        return false
+    end
 
+    local valid = helper.CheckBio(character)
+    if not valid then
+        return false
+    end
+
+    local charId = db.createCharacter(userId, slot, character)
+
+    if not charId then
+        return false
+    end
+
+    return charId
 end)
 
 RegisterNetEvent('mnr_core:server:SelectedCharacter', function(slot)
