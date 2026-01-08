@@ -50,6 +50,7 @@ function db.getUserCharSlots(userId)
 end
 
 local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+
 -- Database query used to create a new character for a user
 ---@param userId number
 ---@param slot number
@@ -66,6 +67,15 @@ function db.createCharacter(userId, slot, character)
     })
 
     return charId
+end
+
+local GET_USER_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
+-- Database query used to get all characters for a user
+---@param userId number
+function db.getUserCharacters(userId)
+    local characters = MySQL.prepare.await(GET_USER_CHARACTERS, { userId })
+
+    return characters
 end
 
 return db
