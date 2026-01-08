@@ -3,9 +3,10 @@ local db = {}
 local GET_USER = 'SELECT `userId` FROM `users` WHERE `license2` = ?'
 local UPDATE_USER = 'UPDATE `users` SET `license` = COALESCE(?, `license`), `fivem` = COALESCE(?, `fivem`), `steam` = COALESCE(?, `steam`), `discord` = COALESCE(?, `discord`) WHERE `userId` = ?'
 local CREATE_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?)'
+local CREATE_CHAR_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, 2)'
 
 -- Database query used to register or update a user during login
----@todo Reduce query number
+---@todo Reduce query number, add slots as param to implement custom perms later
 ---@param identifiers table
 ---@return number | nil, string | nil
 function db.userLogin(identifiers)
@@ -33,6 +34,8 @@ function db.userLogin(identifiers)
         if not userId then
             return nil, 'Failed to create user, contact the developer.'
         end
+
+        MySQL.prepare.await(CREATE_CHAR_SLOTS, {userId})
 
         return userId, nil
     end
@@ -75,7 +78,7 @@ local GET_USER_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `
 function db.getUserCharacters(userId)
     local characters = MySQL.prepare.await(GET_USER_CHARACTERS, { userId })
 
-    return characters
+    return characters or {}
 end
 
 return db

@@ -37,39 +37,57 @@ end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
 
-lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
-    if not Players[source] then
-        return false
-    end
+-- Callback to get the characters and slots for a user
+---@param source number
+---@return table | nil, number | nil
+lib.callback.register('mnr_core:server:GetCharacters', function(source)
+    if not Players[source] then return nil, nil end
 
     local userId = Players[source].userId
-    local maxSlots = db.getUserCharSlots(userId)
-    if maxSlots < slot then
-        return false
+    local characters = db.getUserCharacters(userId)
+    local slots = db.getUserCharSlots(userId)
+
+    return characters, slots
+end)
+
+-- Callback to validate character data and create a new character
+---@param source number
+---@param character table
+---@param slot number
+---@return number | false, string | nil
+lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
+    if not Players[source] then return false end
+
+    local userId = Players[source].userId
+
+    local slots = db.getUserCharSlots(userId)
+    if slot > slots or slot < 1 then
+        return false, 'invalid_slot'
     end
 
-    local valid = helper.CheckBio(character)
-    if not valid then
-        return false
+    local characters = db.getUserCharacters(userId)
+    for _, char in ipairs(characters) do
+        if char.slot == slot then
+            return false, 'slot_taken'
+        end
+    end
+
+    local data = helpers.checkCharacter(character)
+    if not data then
+        return false, 'invalid_data'
     end
 
     local charId = db.createCharacter(userId, slot, character)
-
     if not charId then
-        return false
+        return false, 'creation_failed'
     end
 
-    return charId
+    return charId, nil
 end)
 
 RegisterNetEvent('mnr_core:server:SelectedCharacter', function(slot)
-    local src = source
-
-    if not Players[src] then
-        return
-    end
-
-
+    ---@todo Player selects a character slot
+    ---@idea Use this callback to send appearance, last position and other data to the player
 end)
 
 local function onPlayerDropped(reason)
