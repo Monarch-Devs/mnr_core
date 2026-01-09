@@ -1,4 +1,4 @@
-local helper = require 'server.player.helpers'
+local helper = require 'server.player.helper'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
@@ -72,7 +72,7 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
         end
     end
 
-    local data = helpers.checkCharacter(character)
+    local data = helper.checkCharacter(character)
     if not data then
         return false, 'invalid_data'
     end
