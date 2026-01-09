@@ -1,5 +1,3 @@
---| Monarch Core SQL Schema |--
-
 CREATE TABLE IF NOT EXISTS `users` (
     `userId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `license` VARCHAR(50) DEFAULT NULL,
