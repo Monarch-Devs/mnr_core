@@ -1,3 +1,5 @@
+---@todo MERGE SLOTS AND CHARACTERS IN A SINGLE FUNCTION
+
 local db = {}
 
 local GET_USER = 'SELECT `userId` FROM `users` WHERE `license2` = ?'

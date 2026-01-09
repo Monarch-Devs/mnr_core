@@ -25,7 +25,7 @@ function helper.safeTruncate(str, maxBytes)
     end
 
     ---@todo Sanitize instead of returning empty string
-    return ""
+    return ''
 end
 
 -- Character Validator

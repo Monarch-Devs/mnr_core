@@ -1,3 +1,5 @@
+local spawn = require 'config.spawn'
+
 local helper = require 'server.player.helper'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
@@ -41,7 +43,9 @@ AddEventHandler('playerConnecting', onPlayerConnecting)
 ---@param source number
 ---@return table | nil, number | nil
 lib.callback.register('mnr_core:server:GetCharacters', function(source)
-    if not Players[source] then return nil, nil end
+    if not Players[source] then
+        return nil, nil
+    end
 
     local userId = Players[source].userId
     local characters = db.getUserCharacters(userId)
@@ -56,7 +60,9 @@ end)
 ---@param slot number
 ---@return number | false, string | nil
 lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
-    if not Players[source] then return false end
+    if not Players[source] then
+        return false, 'no_player'
+    end
 
     local userId = Players[source].userId
 
@@ -85,9 +91,43 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     return charId, nil
 end)
 
-RegisterNetEvent('mnr_core:server:SelectedCharacter', function(slot)
-    ---@todo Player selects a character slot
-    ---@idea Use this callback to send appearance, last position and other data to the player
+-- Callback to select a character and load it
+---@todo Improve structure
+---@param source number
+---@param slot number
+---@return table | false, vector4 | nil
+lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
+    if not Players[source] then
+        return false, nil
+    end
+
+    if type(slot) ~= 'number' then
+        return false, nil
+    end
+
+    local userId = Players[source].userId
+
+    local characters = db.getUserCharacters(userId)
+    local selected = false
+    for _, char in ipairs(characters) do
+        if char.slot == slot then
+            Players[source]:loadChar(char)
+            selected = char
+            break
+        end
+    end
+
+    if not selected then
+        return false, nil
+    end
+
+    local position = db.getSpawnPosition(Players[source].charId)
+
+    if not position then
+        position = spawn.start
+    end
+
+    return selected, position
 end)
 
 local function onPlayerDropped(reason)
