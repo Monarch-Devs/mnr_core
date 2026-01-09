@@ -10,8 +10,12 @@ repository 'https://github.com/Monarch-Devs/mnr_core'
 
 files {}
 
-shared_scripts {}
+shared_scripts {
+    '@ox_lib/init.lua',
+}
 
 client_scripts {}
 
-server_scripts {}
+server_scripts {
+    'server/player/main.lua',
+}
