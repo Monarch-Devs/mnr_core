@@ -32,3 +32,13 @@ CREATE TABLE IF NOT EXISTS `characters` (
     FOREIGN KEY (`userId`) REFERENCES `users`(`userId`) ON DELETE CASCADE,
     UNIQUE KEY `unique_user_slot` (`userId`, `slot`)
 ); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `char_position` (
+    `charId` INT UNSIGNED NOT NULL,
+    `x` FLOAT NOT NULL,
+    `y` FLOAT NOT NULL,
+    `z` FLOAT NOT NULL,
+    `w` FLOAT NOT NULL,
+    PRIMARY KEY (`charId`),
+    FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
