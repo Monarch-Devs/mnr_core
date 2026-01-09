@@ -8,14 +8,14 @@ CREATE TABLE IF NOT EXISTS `users` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `last_login` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`userId`)
-); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `char_slots` (
     `userId` INT UNSIGNED NOT NULL,
     `slots` TINYINT UNSIGNED NOT NULL DEFAULT 2,
     PRIMARY KEY (`userId`),
     FOREIGN KEY (`userId`) REFERENCES `users`(`userId`) ON DELETE CASCADE
-); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `characters` (
     `charId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
     PRIMARY KEY (`charId`),
     FOREIGN KEY (`userId`) REFERENCES `users`(`userId`) ON DELETE CASCADE,
     UNIQUE KEY `unique_user_slot` (`userId`, `slot`)
-); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `char_position` (
     `charId` INT UNSIGNED NOT NULL,
@@ -39,4 +39,4 @@ CREATE TABLE IF NOT EXISTS `char_position` (
     `w` FLOAT NOT NULL,
     PRIMARY KEY (`charId`),
     FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
-); ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
