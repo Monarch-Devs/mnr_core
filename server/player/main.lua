@@ -41,17 +41,16 @@ AddEventHandler('playerConnecting', onPlayerConnecting)
 
 -- Callback to get the characters and slots for a user
 ---@param source number
----@return table | nil, number | nil
+---@return number | nil, table | nil
 lib.callback.register('mnr_core:server:GetCharacters', function(source)
     if not Players[source] then
         return nil, nil
     end
 
     local userId = Players[source].userId
-    local characters = db.getUserCharacters(userId)
-    local slots = db.getUserCharSlots(userId)
+    local slots, characters = db.getUserData(userId)
 
-    return characters, slots
+    return slots, characters
 end)
 
 -- Callback to validate character data and create a new character
@@ -66,16 +65,14 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
 
     local userId = Players[source].userId
 
-    local slots = db.getUserCharSlots(userId)
+    local slots, characters = db.getUserData(userId)
+
     if slot > slots or slot < 1 then
         return false, 'invalid_slot'
     end
 
-    local characters = db.getUserCharacters(userId)
-    for _, char in ipairs(characters) do
-        if char.slot == slot then
-            return false, 'slot_taken'
-        end
+    if characters[slot] ~= false then
+        return false, 'slot_taken'
     end
 
     local data = helper.checkCharacter(character)
@@ -95,39 +92,31 @@ end)
 ---@todo Improve structure
 ---@param source number
 ---@param slot number
----@return table | false, vector4 | nil
+---@return table | false
 lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
     if not Players[source] then
-        return false, nil
+        return false
     end
 
     if type(slot) ~= 'number' then
-        return false, nil
+        return false
     end
 
     local userId = Players[source].userId
 
-    local characters = db.getUserCharacters(userId)
-    local selected = false
-    for _, char in ipairs(characters) do
-        if char.slot == slot then
-            Players[source]:loadChar(char)
-            selected = char
-            break
-        end
+    local _, characters = db.getUserData(userId)
+
+    if type(characters[slot]) ~= 'table' then
+        return false
     end
 
-    if not selected then
-        return false, nil
-    end
+    Players[source]:loadChar(characters[slot])
 
-    local position = db.getSpawnPosition(Players[source].charId)
+    ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
-    if not position then
-        position = spawn.start
-    end
-
-    return selected, position
+    ---@description Sends the char table for client bio register (Documents view player POV saving server calls)
+    ---@todo Not needed in a multicharacter environment, better trigger core client event and return only boolean (loaded or not)
+    return characters[slot]
 end)
 
 local function onPlayerDropped(reason)

@@ -1,61 +1,30 @@
----@todo MERGE SLOTS AND CHARACTERS IN A SINGLE FUNCTION
-
 local db = {}
 
-local GET_USER = 'SELECT `userId` FROM `users` WHERE `license2` = ?'
-local UPDATE_USER = 'UPDATE `users` SET `license` = COALESCE(?, `license`), `fivem` = COALESCE(?, `fivem`), `steam` = COALESCE(?, `steam`), `discord` = COALESCE(?, `discord`) WHERE `userId` = ?'
-local CREATE_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?)'
-local CREATE_CHAR_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, 2)'
-
+local UPSERT_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `license` = COALESCE(VALUES(`license`), `license`), `fivem` = COALESCE(VALUES(`fivem`), `fivem`), `steam` = COALESCE(VALUES(`steam`), `steam`), `discord` = COALESCE(VALUES(`discord`), `discord`)'
+local CREATE_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, 2)'
 -- Database query used to register or update a user during login
----@todo Reduce query number, add slots as param to implement custom perms later
+---@todo Add slots as param to implement custom perms later
 ---@param identifiers table
 ---@return number | nil, string | nil
 function db.userLogin(identifiers)
-    local userId = MySQL.prepare.await(GET_USER, { identifiers.license2 })
+    local userId = MySQL.prepare.await(UPSERT_USER, {
+        identifiers.license,
+        identifiers.license2,
+        identifiers.fivem,
+        identifiers.steam,
+        identifiers.discord
+    })
 
-    if userId then
-        MySQL.update.await(UPDATE_USER, {
-            identifiers.license,
-            identifiers.fivem,
-            identifiers.steam,
-            identifiers.discord,
-            userId
-        })
-
-        return userId, nil
-    else
-        userId = MySQL.prepare.await(CREATE_USER, {
-            identifiers.license,
-            identifiers.license2,
-            identifiers.fivem,
-            identifiers.steam,
-            identifiers.discord
-        })
-
-        if not userId then
-            return nil, 'Failed to create user, contact the developer.'
-        end
-
-        MySQL.prepare.await(CREATE_CHAR_SLOTS, {userId})
-
-        return userId, nil
+    if not userId then
+        return nil, 'Failed to update/create user'
     end
-end
 
-local GET_USER_CHAR_SLOTS = 'SELECT `slots` FROM `char_slots` WHERE `userId` = ?'
+    MySQL.prepare.await(CREATE_SLOTS, {userId})
 
--- Database query used to get the maximum character slots for a user
----@param userId number
----@return number
-function db.getUserCharSlots(userId)
-    local slots = MySQL.prepare.await(GET_USER_CHAR_SLOTS, { userId })
-
-    return slots or 2
+    return userId, nil
 end
 
 local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
-
 -- Database query used to create a new character for a user
 ---@param userId number
 ---@param slot number
@@ -74,13 +43,52 @@ function db.createCharacter(userId, slot, character)
     return charId
 end
 
-local GET_USER_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
--- Database query used to get all characters for a user
+local GET_USER_DATA = [[
+    SELECT
+        char_slots.slots,
+        characters.charId,
+        characters.slot, 
+        characters.firstname, 
+        characters.lastname, 
+        characters.gender, 
+        characters.origin, 
+        characters.birthdate 
+    FROM char_slots
+    LEFT JOIN characters ON char_slots.userId = characters.userId
+    WHERE char_slots.userId = ?
+    ORDER BY characters.slot ASC
+]]
+-- Database query used to get user's character slots and all their characters
 ---@param userId number
-function db.getUserCharacters(userId)
-    local characters = MySQL.prepare.await(GET_USER_CHARACTERS, { userId })
+---@return number, table
+function db.getUserData(userId)
+    local result = MySQL.query.await(GET_USER_DATA, { userId })
 
-    return characters or {}
+    if not result or #result == 0 then
+        return 2, {}
+    end
+
+    local slots = result[1].slots
+    local characters = {}
+
+    for slot = 1, slots do
+        characters[slot] = false
+    end
+
+    for _, row in ipairs(result) do
+        if row.charId then
+            characters[row.slot] = {
+                charId = row.charId,
+                firstname = row.firstname,
+                lastname = row.lastname,
+                gender = row.gender,
+                origin = row.origin,
+                birthdate = row.birthdate
+            }
+        end
+    end
+
+    return slots, characters
 end
 
 return db
