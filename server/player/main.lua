@@ -92,7 +92,7 @@ end)
 ---@todo Improve structure
 ---@param source number
 ---@param slot number
----@return table | false
+---@return boolean loaded
 lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
     if not Players[source] then
         return false
@@ -103,7 +103,6 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     end
 
     local userId = Players[source].userId
-
     local _, characters = db.getUserData(userId)
 
     if type(characters[slot]) ~= 'table' then
@@ -114,9 +113,10 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
-    ---@description Sends the char table for client bio register (Documents view player POV saving server calls)
-    ---@todo Not needed in a multicharacter environment, better trigger core client event and return only boolean (loaded or not)
-    return characters[slot]
+    TriggerClientEvent('mnr_core:client:CharacterLoaded', source, characters[slot])
+    TriggerEvent('mnr_core:server:CharacterLoaded', source, characters[slot])
+
+    return true
 end)
 
 local function onPlayerDropped(reason)
@@ -128,3 +128,18 @@ local function onPlayerDropped(reason)
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)
+
+local function getPlayerData(source, field, sub)
+    local src = source
+    if not Players[src] then
+        return false
+    end
+
+    if not sub then
+        return Players[field]
+    else
+        return Players[field][sub]
+    end
+end
+
+exports('GetPlayerData', getPlayerData)
