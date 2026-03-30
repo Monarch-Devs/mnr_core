@@ -1,19 +1,16 @@
 local db = {}
 
 local UPSERT_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `license` = COALESCE(VALUES(`license`), `license`), `fivem` = COALESCE(VALUES(`fivem`), `fivem`), `steam` = COALESCE(VALUES(`steam`), `steam`), `discord` = COALESCE(VALUES(`discord`), `discord`)'
+local GET_USER_ID = 'SELECT `userId` FROM `users` WHERE `license2` = ? LIMIT 1'
 local CREATE_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, 2)'
 -- Database query used to register or update a user during login
 ---@todo Add slots as param to implement custom perms later
 ---@param identifiers table
 ---@return number | nil, string | nil
 function db.userLogin(identifiers)
-    local userId = MySQL.prepare.await(UPSERT_USER, {
-        identifiers.license,
-        identifiers.license2,
-        identifiers.fivem,
-        identifiers.steam,
-        identifiers.discord
-    })
+    MySQL.prepare.await(UPSERT_USER, { identifiers.license, identifiers.license2, identifiers.fivem, identifiers.steam, identifiers.discord })
+
+    local userId = MySQL.scalar.await(GET_USER_ID, { identifiers.license2 })
 
     if not userId then
         return nil, 'Failed to update/create user'
