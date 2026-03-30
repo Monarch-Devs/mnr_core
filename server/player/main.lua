@@ -6,12 +6,13 @@ local MnrPlayer = require 'server.player.class'
 
 GlobalState:set('OnlinePlayers', 0, true)
 
+Queue = {}
 Players = {}
 
 local function onPlayerConnecting(name, _, deferrals)
-    local src = source
+    local loginId = source
 
-    local identifiers = helper.getIdentifiersBySource(src)
+    local identifiers = helper.getIdentifiersBySource(loginId)
     if not identifiers.license2 then
         deferrals.done(('Hi %s. We didn\'t find a valid identifier (license2)'):format(name))
         return
@@ -32,12 +33,26 @@ local function onPlayerConnecting(name, _, deferrals)
         return
     end
 
+    Queue[loginId] = userId
     Players[src] = MnrPlayer.new(userId)
     deferrals.done()
     GlobalState.OnlinePlayers += 1
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
+
+local function onPlayerJoining(loginId)
+    local src = source
+    local userId = Queue[loginId]
+
+    Players[src] = MnrPlayer.new(userId)
+
+    Queue[loginId] = nil
+
+    GlobalState.OnlinePlayers += 1
+end
+
+AddEventHandler('playerJoining', onPlayerJoining)
 
 -- Callback to get the characters and slots for a user
 ---@param source number
