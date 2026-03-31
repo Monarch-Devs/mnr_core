@@ -40,49 +40,34 @@ function db.createCharacter(userId, slot, character)
     return charId
 end
 
-local GET_USER_DATA = [[
-    SELECT
-        char_slots.slots,
-        characters.charId,
-        characters.slot, 
-        characters.firstname, 
-        characters.lastname, 
-        characters.gender, 
-        characters.origin, 
-        characters.birthdate 
-    FROM char_slots
-    LEFT JOIN characters ON char_slots.userId = characters.userId
-    WHERE char_slots.userId = ?
-    ORDER BY characters.slot ASC
-]]
+local GET_SLOTS = 'SELECT `slots` FROM `char_slots` WHERE `userId` = ? LIMIT 1'
+local GET_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
 -- Database query used to get user's character slots and all their characters
 ---@param userId number
 ---@return number, table
 function db.getUserData(userId)
-    local result = MySQL.query.await(GET_USER_DATA, { userId })
+    local slots = MySQL.scalar.await(GET_SLOTS, { userId })
 
-    if not result or #result == 0 then
+    if not slots then
         return 2, {}
     end
 
-    local slots = result[1].slots
-    local characters = {}
+    local rows = MySQL.query.await(GET_CHARACTERS, { userId }) or {}
 
-    for slot = 1, slots do
-        characters[slot] = false
+    local characters = {}
+    for i = 1, slots do
+        characters[i] = false
     end
 
-    for _, row in ipairs(result) do
-        if row.charId then
-            characters[row.slot] = {
-                charId = row.charId,
-                firstname = row.firstname,
-                lastname = row.lastname,
-                gender = row.gender,
-                origin = row.origin,
-                birthdate = row.birthdate
-            }
-        end
+    for _, row in ipairs(rows) do
+        characters[row.slot] = {
+            charId = row.charId,
+            firstname = row.firstname,
+            lastname = row.lastname,
+            gender = row.gender,
+            origin = row.origin,
+            birthdate = row.birthdate,
+        }
     end
 
     return slots, characters
