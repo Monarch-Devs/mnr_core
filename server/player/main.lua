@@ -9,8 +9,14 @@ GlobalState:set('OnlinePlayers', 0, true)
 Queue = {}
 Players = {}
 
+-- Function attached to "playerConnecting" handler. Note: loginId is converted to string because in playerJoining the type is string
+---@param name string The name of the connecting player
 local function onPlayerConnecting(name, _, deferrals)
-    local loginId = source
+    local loginId = tostring(source)
+
+    deferrals.defer()
+
+    deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
 
     local identifiers = helper.getIdentifiersBySource(loginId)
     if not identifiers.license2 then
@@ -18,24 +24,15 @@ local function onPlayerConnecting(name, _, deferrals)
         return
     end
 
-    deferrals.defer()
-
-    Wait(0)
-
-    deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
-
     local userId, err = db.userLogin(identifiers)
 
-    Wait(0)
-
-    if not userId then
+    if userId then
+        Queue[loginId] = userId
+        deferrals.done()
+    else
         deferrals.done(err)
         return
     end
-
-    Queue[loginId] = userId
-
-    deferrals.done()
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
@@ -45,7 +42,6 @@ local function onPlayerJoining(loginId)
     local userId = Queue[loginId]
 
     Players[src] = MnrPlayer.new(userId)
-
     Queue[loginId] = nil
 
     GlobalState.OnlinePlayers += 1
@@ -78,14 +74,13 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     end
 
     local userId = Players[source].userId
-
     local slots, characters = db.getUserData(userId)
 
     if slot > slots or slot < 1 then
         return false, 'invalid_slot'
     end
 
-    if characters[slot] ~= false then
+    if characters[slot] then
         return false, 'slot_taken'
     end
 
