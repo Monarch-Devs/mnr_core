@@ -34,9 +34,8 @@ local function onPlayerConnecting(name, _, deferrals)
     end
 
     Queue[loginId] = userId
-    Players[src] = MnrPlayer.new(userId)
+
     deferrals.done()
-    GlobalState.OnlinePlayers += 1
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
