@@ -1,3 +1,5 @@
+local maxCharacters = GetConvar('mnr:maxCharacters', 2)
+
 local spawn = require 'config.spawn'
 
 local helper = require 'server.player.helper'
@@ -24,13 +26,13 @@ local function onPlayerConnecting(name, _, deferrals)
         return
     end
 
-    local userId, err = db.userLogin(identifiers)
+    local userId = db.userLogin(identifiers)
 
     if userId then
         Queue[loginId] = userId
         deferrals.done()
     else
-        deferrals.done(err)
+        deferrals.done(('Hi %s. There is a problem with user logins, retry later'):format(name))
         return
     end
 end
@@ -58,7 +60,13 @@ lib.callback.register('mnr_core:server:GetCharacters', function(source)
     end
 
     local userId = Players[source].userId
-    local slots, characters = db.getUserData(userId)
+
+    local slots = db.getUserSlots(userId)
+    if not slots then
+        db.initUserSlots(userId, maxCharacters)
+    end
+
+    local characters = db.getUserCharacters(userId, slots or maxCharacters)
 
     return slots, characters
 end)
@@ -74,7 +82,8 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     end
 
     local userId = Players[source].userId
-    local slots, characters = db.getUserData(userId)
+    local slots = db.getUserSlots(userId)
+    local characters = db.getUserCharacters(userId, slots)
 
     if slot > slots or slot < 1 then
         return false, 'invalid_slot'
@@ -112,7 +121,8 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     end
 
     local userId = Players[source].userId
-    local _, characters = db.getUserData(userId)
+    local slots = db.getUserSlots(userId)                   ---@todo [SIMPLIFY THIS CREATING A CHECK QUERY THAT USES ONLY USER ID AND SLOT GIVEN TO OBTAIN ONLY CHOOSEN CHARACTER]
+    local characters = db.getUserCharacters(userId, slots)
 
     if type(characters[slot]) ~= 'table' then
         return false
