@@ -36,6 +36,62 @@ function MnrPlayer:loadChar(data)
     self.groups = data.groups or {}
 end
 
+function MnrPlayer:addGroup(cat, name, grade)
+    local result, err = groups.add(self.charId, self.groups, cat, name, grade)
+    if not result then
+        return false, err
+    end
+
+    self.groups = result
+
+    return true
+end
+
+function MnrPlayer:setGroup(slot, cat, name, grade)
+    local result, err = groups.set(self.charId, self.groups, slot, cat, name, grade)
+    if not result then
+        return false, err
+    end
+
+    self.groups = result
+
+    return true
+end
+
+function MnrPlayer:getGroup(name)
+    for slot, group in ipairs(self.groups) do
+        if type(group) == 'table' and group.name == name then
+            return group, slot
+        end
+    end
+
+
+    return nil
+end
+
+function MnrPlayer:getGroupsByCategory(cat)
+    local result = {}
+
+    for slot, group in ipairs(self.groups) do
+        if type(group) == 'table' and group.cat == cat then
+            result[#result + 1] = { slot = slot, group = group }
+        end
+    end
+
+    return result
+end
+
+function MnrPlayer:removeGroup(slot)
+    local result, err = groups.removeBySlot(self.charId, self.groups, slot)
+    if not result then
+        return false, err
+    end
+
+    self.groups = result
+
+    return true
+end
+
 function MnrPlayer:save()
     if not self.charId then return end
 

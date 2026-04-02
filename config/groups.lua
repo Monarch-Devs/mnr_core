@@ -1,7 +1,7 @@
 return {
     ['civilian'] = {
         label = 'Civilian',
-        cat = 'CIV'
+        cat = 'CIV',
         grades = {
             [1] = { label = 'Unemployed' },
         },
@@ -46,6 +46,17 @@ return {
             [13] = { label = 'Senior Surgeon' },
             [14] = { label = 'Head of Department' },
             [15] = { label = 'Medical Director' },
+        },
+    },
+    ['cartel'] = {
+        label = 'Cartel',
+        cat = 'ILG',
+        grades = {
+            [1] = { label = 'Recruit' },
+            [2] = { label = 'Member' },
+            [3] = { label = 'OG' },
+            [4] = { label = 'Underboss' },
+            [5] = { label = 'Boss' },
         },
     },
 }

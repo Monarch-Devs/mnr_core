@@ -1,4 +1,5 @@
-local maxCharacters = GetConvar('mnr:maxCharacters', 2)
+local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
+local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
 local spawn = require 'config.spawn'
 

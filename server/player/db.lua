@@ -105,27 +105,33 @@ function db.saveStatus(charId, data)
     MySQL.prepare.await(SAVE_STATUS, { charId, data.health, data.armor, data.hunger, data.thirst, data.stress })
 end
 
-local GET_GROUPS = 'SELECT `type`, `name`, `grade` FROM `char_groups` WHERE `charId` = ?'
+local GET_GROUPS = 'SELECT `slot`, `cat`, `name`, `grade` FROM `char_groups` WHERE `charId` = ? ORDER BY `slot` ASC'
 -- Database query used to get the groups of a character
 ---@param charId number
 function db.getGroups(charId)
     return MySQL.query.await(GET_GROUPS, { charId })
 end
 
-local SAVE_GROUP = 'INSERT INTO `char_groups` (`charId`, `type`, `name`, `grade`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `grade` = VALUES(`grade`)'
+local SAVE_GROUP = 'INSERT INTO `char_groups` (`charId`, `slot`, `cat`, `name`, `grade`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `cat` = VALUES(`cat`), `name` = VALUES(`name`), `grade` = VALUES(`grade`)'
 -- Database query used to save a group of a character
 ---@param charId number
+---@param slot number
 ---@param data table
-function db.saveGroup(charId, data)
-    MySQL.prepare.await(SAVE_GROUP, { charId, data.type, data.name, data.grade })
+function db.saveGroup(charId, slot, data)
+    MySQL.prepare.await(SAVE_GROUP, { charId, slot, data.cat, data.name, data.grade })
 end
 
-local DELETE_GROUP = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `type` = ?'
+local DELETE_GROUP_SLOT = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `slot` = ?'
+function db.deleteGroupBySlot(charId, slot)
+    MySQL.prepare.await(DELETE_GROUP_SLOT, { charId, slot })
+end
+
+local DELETE_GROUP = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `name` = ?'
 -- Database query used to delete a group of a character
 ---@param charId number
----@param type string
-function db.deleteGroup(charId, type)
-    MySQL.prepare.await(DELETE_GROUP, { charId, type })
+---@param name string
+function db.deleteGroupByName(charId, name)
+    MySQL.prepare.await(DELETE_GROUP, { charId, name })
 end
 
 return db
