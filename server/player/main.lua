@@ -26,7 +26,7 @@ local function onPlayerConnecting(name, _, deferrals)
         return
     end
 
-    local userId = db.userLogin(identifiers)
+    local userId = db.userLogin(identifiers, maxCharacters)
 
     if userId then
         Queue[loginId] = userId
@@ -60,12 +60,7 @@ lib.callback.register('mnr_core:server:GetCharacters', function(source)
     end
 
     local userId = Players[source].userId
-
     local slots = db.getUserSlots(userId)
-    if not slots then
-        db.initUserSlots(userId, maxCharacters)
-    end
-
     local characters = db.getUserCharacters(userId, slots or maxCharacters)
 
     return slots, characters
@@ -106,25 +101,19 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     return charId, nil
 end)
 
--- Callback to select a character and load it
----@todo Improve structure
+-- Callback to select a character and load his bio
 ---@param source number
 ---@param slot number
 ---@return boolean loaded
 lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
-    if not Players[source] then
-        return false
-    end
-
-    if type(slot) ~= 'number' then
+    if not Players[source] or type(slot) ~= 'number' then
         return false
     end
 
     local userId = Players[source].userId
-    local slots = db.getUserSlots(userId)                   ---@todo [SIMPLIFY THIS CREATING A CHECK QUERY THAT USES ONLY USER ID AND SLOT GIVEN TO OBTAIN ONLY CHOOSEN CHARACTER]
-    local characters = db.getUserCharacters(userId, slots)
+    local character = db.getCharacterBySlot(userId, slot)
 
-    if type(characters[slot]) ~= 'table' then
+    if not character then
         return false
     end
 
@@ -132,8 +121,8 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
-    TriggerClientEvent('mnr_core:client:CharacterLoaded', source, characters[slot])
-    TriggerEvent('mnr_core:server:CharacterLoaded', source, characters[slot])
+    TriggerClientEvent('mnr_core:client:CharacterLoaded', source, character)
+    TriggerEvent('mnr_core:server:CharacterLoaded', source, character)
 
     return true
 end)

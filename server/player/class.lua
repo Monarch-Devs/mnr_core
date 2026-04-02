@@ -1,6 +1,9 @@
 ---@class MnrPlayer
 ---@field userId number
 
+local status = require 'server.player.status'
+local groups = require 'server.player.groups'
+
 local MnrPlayer = {}
 MnrPlayer.__index = MnrPlayer
 
@@ -22,6 +25,22 @@ function MnrPlayer:loadChar(data)
         origin = data.origin,
         birthdate = data.birthdate,
     }
+
+    self.status = {
+        health = data.health  or 200,
+        armor = data.armor   or 0,
+        hunger = data.hunger  or 100.0,
+        thirst = data.thirst  or 100.0,
+    }
+
+    self.groups = data.groups or {}
+end
+
+function MnrPlayer:save()
+    if not self.charId then return end
+
+    status.save(self.charId, self.status)
+    groups.save(self.charId, self.groups)
 end
 
 return MnrPlayer

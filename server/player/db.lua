@@ -2,10 +2,12 @@ local db = {}
 
 local UPSERT_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `license` = COALESCE(VALUES(`license`), `license`), `fivem` = COALESCE(VALUES(`fivem`), `fivem`), `steam` = COALESCE(VALUES(`steam`), `steam`), `discord` = COALESCE(VALUES(`discord`), `discord`)'
 local GET_USER_ID = 'SELECT `userId` FROM `users` WHERE `license2` = ? LIMIT 1'
+local CREATE_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, ?)'
 -- Database query used to register or update a user during login
 ---@param identifiers table
+---@param maxCharacters number
 ---@return number | boolean
-function db.userLogin(identifiers)
+function db.userLogin(identifiers, maxCharacters)
     MySQL.prepare.await(UPSERT_USER, { identifiers.license, identifiers.license2, identifiers.fivem, identifiers.steam, identifiers.discord })
 
     local userId = MySQL.scalar.await(GET_USER_ID, { identifiers.license2 })
@@ -13,6 +15,8 @@ function db.userLogin(identifiers)
     if not userId then
         return false
     end
+
+    MySQL.prepare.await(CREATE_SLOTS, { userId, maxCharacters })
 
     return userId
 end
@@ -29,14 +33,6 @@ function db.getUserSlots(userId)
     end
 
     return slots
-end
-
-local CREATE_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, ?)'
--- Database query used to initialize user's character max slots
----@param userId number
----@param maxCharacters number
-function db.initUserSlots(userId, maxCharacters)
-    MySQL.prepare.await(CREATE_SLOTS, { userId, maxCharacters })
 end
 
 local GET_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
@@ -65,6 +61,15 @@ function db.getUserCharacters(userId, slots)
     return characters
 end
 
+local GET_CHARACTER_BY_SLOT = 'SELECT `charId`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? AND `slot` = ? LIMIT 1'
+-- Database query used to get a character from a precise slot
+---@param userId number
+---@param slot number
+---@return character table
+function db.getCharacterBySlot(userId, slot)
+    return MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
+end
+
 local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
 -- Database query used to create a new character for a user
 ---@param userId number
@@ -82,6 +87,45 @@ function db.createCharacter(userId, slot, character)
     })
 
     return charId
+end
+
+local GET_STATUS = 'SELECT `health`, `armor`, `hunger`, `thirst`, `stress` FROM `char_status` WHERE `charId` = ? LIMIT 1'
+-- Database query used to get the status of a character
+---@param charId number
+---@return table status
+function db.getStatus(charId)
+    return MySQL.single.await(GET_STATUS, { charId })
+end
+
+local SAVE_STATUS = 'INSERT INTO `char_status` (`charId`, `health`, `armor`, `hunger`, `thirst`, `stress`) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `health` = VALUES(`health`), `armor` = VALUES(`armor`), `hunger` = VALUES(`hunger`), `thirst` = VALUES(`thirst`), `stress` = VALUES(`stress`)'
+-- Database query used to save the status of a character
+---@param charId number
+---@param data table
+function db.saveStatus(charId, data)
+    MySQL.prepare.await(SAVE_STATUS, { charId, data.health, data.armor, data.hunger, data.thirst, data.stress })
+end
+
+local GET_GROUPS = 'SELECT `type`, `name`, `grade` FROM `char_groups` WHERE `charId` = ?'
+-- Database query used to get the groups of a character
+---@param charId number
+function db.getGroups(charId)
+    return MySQL.query.await(GET_GROUPS, { charId })
+end
+
+local SAVE_GROUP = 'INSERT INTO `char_groups` (`charId`, `type`, `name`, `grade`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `grade` = VALUES(`grade`)'
+-- Database query used to save a group of a character
+---@param charId number
+---@param data table
+function db.saveGroup(charId, data)
+    MySQL.prepare.await(SAVE_GROUP, { charId, data.type, data.name, data.grade })
+end
+
+local DELETE_GROUP = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `type` = ?'
+-- Database query used to delete a group of a character
+---@param charId number
+---@param type string
+function db.deleteGroup(charId, type)
+    MySQL.prepare.await(DELETE_GROUP, { charId, type })
 end
 
 return db

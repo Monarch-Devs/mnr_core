@@ -31,6 +31,26 @@ CREATE TABLE IF NOT EXISTS `characters` (
     UNIQUE KEY `unique_user_slot` (`userId`, `slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `char_status` (
+    `charId` INT UNSIGNED NOT NULL,
+    `health` TINYINT UNSIGNED NOT NULL DEFAULT 200,
+    `armor` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    `hunger` TINYINT UNSIGNED NOT NULL DEFAULT 100,
+    `thirst` TINYINT UNSIGNED NOT NULL DEFAULT 100,
+    `stress` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`charId`),
+    FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `char_groups` (
+    `charId`  INT UNSIGNED  NOT NULL,
+    `type`    VARCHAR(32)   NOT NULL,
+    `name`    VARCHAR(64)   NOT NULL,
+    `grade`   TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`charId`, `type`),
+    FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `char_position` (
     `charId` INT UNSIGNED NOT NULL,
     `x` FLOAT NOT NULL,
