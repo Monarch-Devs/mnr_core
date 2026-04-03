@@ -24,7 +24,7 @@ end
 local GET_SLOTS = 'SELECT `slots` FROM `char_slots` WHERE `userId` = ? LIMIT 1'
 -- Database query used to get user's character max slots
 ---@param userId number
----@return slots number
+---@return number | boolean slots
 function db.getUserSlots(userId)
     local slots = MySQL.scalar.await(GET_SLOTS, { userId })
 
@@ -38,7 +38,7 @@ end
 local GET_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
 -- Database query used to get user's character slots and all their characters
 ---@param userId number
----@return number, table
+---@return table characters
 function db.getUserCharacters(userId, slots)
     local rows = MySQL.query.await(GET_CHARACTERS, { userId }) or {}
 
@@ -65,7 +65,7 @@ local GET_CHARACTER_BY_SLOT = 'SELECT `charId`, `firstname`, `lastname`, `gender
 -- Database query used to get a character from a precise slot
 ---@param userId number
 ---@param slot number
----@return character table
+---@return table character
 function db.getCharacterBySlot(userId, slot)
     return MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
 end

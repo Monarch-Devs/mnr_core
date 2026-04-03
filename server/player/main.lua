@@ -54,10 +54,10 @@ AddEventHandler('playerJoining', onPlayerJoining)
 
 -- Callback to get the characters and slots for a user
 ---@param source number
----@return number | nil, table | nil
+---@return number | boolean, table | boolean
 lib.callback.register('mnr_core:server:GetCharacters', function(source)
     if not Players[source] then
-        return nil, nil
+        return false, false
     end
 
     local userId = Players[source].userId
@@ -118,7 +118,7 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
         return false
     end
 
-    Players[source]:loadChar(characters[slot])
+    Players[source]:loadChar(character)
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 

@@ -69,7 +69,7 @@ function groups.set(charId, groupList, slot, cat, name, grade)
         return false, 'name_taken'
     end
 
-    db.saveGroup(charId, { slot = slot, cat = cat, name = name, grade = grade })
+    db.saveGroup(charId, slot, { cat = cat, name = name, grade = grade })
 
     groupList[slot] = { cat = cat, name = name, grade = grade }
 
@@ -92,7 +92,7 @@ function groups.add(charId, groupList, cat, name, grade)
         return false, 'no_free_slot'
     end
 
-    db.saveGroup(charId, { slot = slot, cat = cat, name = name, grade = grade })
+    db.saveGroup(charId, slot, { cat = cat, name = name, grade = grade })
 
     groupList[slot] = { cat = cat, name = name, grade = grade }
 

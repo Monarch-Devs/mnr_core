@@ -26,14 +26,8 @@ function MnrPlayer:loadChar(data)
         birthdate = data.birthdate,
     }
 
-    self.status = {
-        health = data.health  or 200,
-        armor = data.armor   or 0,
-        hunger = data.hunger  or 100.0,
-        thirst = data.thirst  or 100.0,
-    }
-
-    self.groups = data.groups or {}
+    self.status = status.load(self.charId)
+    self.groups = groups.load(self.charId)
 end
 
 function MnrPlayer:addGroup(cat, name, grade)
@@ -64,7 +58,6 @@ function MnrPlayer:getGroup(name)
             return group, slot
         end
     end
-
 
     return nil
 end
