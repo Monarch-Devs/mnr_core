@@ -1,4 +1,4 @@
--- [BETA] Experimental queue/players data store (unlinked only for test)
+-- [BETA] Experimental queue/players data store
 local store = {}
 
 local _queue = {}

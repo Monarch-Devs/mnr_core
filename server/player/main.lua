@@ -10,8 +10,6 @@ local MnrPlayer = require 'server.player.class'
 
 GlobalState:set('OnlinePlayers', 0, true)
 
-Players = {}
-
 -- Function attached to "playerConnecting" handler. Note: loginId is converted to string because in playerJoining the type is string
 ---@param name string The name of the connecting player
 local function onPlayerConnecting(name, _, deferrals)
@@ -45,7 +43,7 @@ local function onPlayerJoining(loginId)
     local src = source
     local userId = store.queueGet(loginId)
 
-    Players[src] = MnrPlayer.new(userId)
+    store.set(src, MnrPlayer.new(userId))
     store.queueRemove(loginId)
 
     GlobalState.OnlinePlayers += 1
@@ -57,11 +55,12 @@ AddEventHandler('playerJoining', onPlayerJoining)
 ---@param source number
 ---@return number | boolean, table | boolean
 lib.callback.register('mnr_core:server:GetCharacters', function(source)
-    if not Players[source] then
+    local player = store.get(source)
+    if not player then
         return false, false
     end
 
-    local userId = Players[source].userId
+    local userId = player.userId
     local slots = db.getUserSlots(userId)
     local characters = db.getUserCharacters(userId, slots or maxCharacters)
 
@@ -74,11 +73,12 @@ end)
 ---@param slot number
 ---@return number | false, string | nil
 lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
-    if not Players[source] then
+    local player = store.get(source)
+    if not player then
         return false, 'no_player'
     end
 
-    local userId = Players[source].userId
+    local userId = player.userId
     local slots = db.getUserSlots(userId)
     local characters = db.getUserCharacters(userId, slots)
 
@@ -108,18 +108,19 @@ end)
 ---@param slot number
 ---@return boolean loaded
 lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
-    if not Players[source] or type(slot) ~= 'number' then
+    local player = store.get(source)
+    if not player or type(slot) ~= 'number' then
         return false
     end
 
-    local userId = Players[source].userId
+    local userId = player.userId
     local character = db.getCharacterBySlot(userId, slot)
 
     if not character then
         return false
     end
 
-    Players[source]:loadChar(character)
+    player:loadChar(character)
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
@@ -134,12 +135,13 @@ local function onPlayerDropped(reason)
 
     GlobalState.OnlinePlayers = GetNumPlayerIndices()
 
-    if not Players[src] then
+    local player = store.get(src)
+    if not player then
         return
     end
 
-    Players[src]:save()
-    Players[src] = nil
+    player:save()
+    store.remove(src)
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)
@@ -147,14 +149,15 @@ AddEventHandler('playerDropped', onPlayerDropped)
 local function getPlayerData(source, field, sub)
     local src = source
 
-    if not Players[src] then
+    local player = store.get(src)
+    if not player then
         return false
     end
 
     if not sub then
-        return Players[src][field]
+        return player[field]
     else
-        return Players[src][field] and Players[src][field][sub] or false
+        return player[field] and player[field][sub] or false
     end
 end
 
