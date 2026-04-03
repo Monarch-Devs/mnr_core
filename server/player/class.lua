@@ -1,6 +1,3 @@
----@class MnrPlayer
----@field userId number
-
 local status = require 'server.player.status'
 local groups = require 'server.player.groups'
 

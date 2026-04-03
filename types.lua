@@ -1,0 +1,3 @@
+---@class MnrPlayer
+---@field userId number The ID retrieved from database associated to user identifiers
+---@field charId number The ID of the character choosen

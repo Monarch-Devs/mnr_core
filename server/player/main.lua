@@ -3,13 +3,13 @@ local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
 local spawn = require 'config.spawn'
 
+local store = require 'server.player.store'
 local helper = require 'server.player.helper'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
 GlobalState:set('OnlinePlayers', 0, true)
 
-Queue = {}
 Players = {}
 
 -- Function attached to "playerConnecting" handler. Note: loginId is converted to string because in playerJoining the type is string
@@ -30,7 +30,7 @@ local function onPlayerConnecting(name, _, deferrals)
     local userId = db.userLogin(identifiers, maxCharacters)
 
     if userId then
-        Queue[loginId] = userId
+        store.queueSet(loginId, userId --[[@as number]])
         deferrals.done()
     else
         deferrals.done(('Hi %s. There is a problem with user logins, retry later'):format(name))
@@ -40,12 +40,13 @@ end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
 
+---@param loginId string
 local function onPlayerJoining(loginId)
     local src = source
-    local userId = Queue[loginId]
+    local userId = store.queueGet(loginId)
 
     Players[src] = MnrPlayer.new(userId)
-    Queue[loginId] = nil
+    store.queueRemove(loginId)
 
     GlobalState.OnlinePlayers += 1
 end
