@@ -1,31 +1,26 @@
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 local db = require 'server.player.db'
 
-local groups = {}
+local MnrGroups = {}
 
-function groups.load(charId)
+function MnrGroups.load(charId)
     local data = db.getGroups(charId)
 
     local slots = {}
     for i = 1, maxGroups do
-        slots[i] = false
+        slots[i] = { cat = 'CIV', name = 'civilian', grade = 1, duty = false }
     end
 
     for _, group in ipairs(data) do
         if group.slot >= 1 and group.slot <= maxGroups then
-            slots[group.slot] = {
-                cat = group.cat,
-                name = group.name,
-                grade = group.grade,
-                duty = group.duty == 1,
-            }
+            slots[group.slot] = { cat = group.cat, name = group.name, grade = group.grade, duty = group.duty == 1 }
         end
     end
 
     return slots
 end
 
-function groups.save(charId, data)
+function MnrGroups.save(charId, data)
     if not data then
         return
     end
@@ -65,7 +60,7 @@ end
 ---@param name string
 ---@param grade number
 ---@return table | false, string | nil
-function groups.set(charId, groupList, slot, cat, name, grade)
+function MnrGroups.set(charId, groupList, slot, cat, name, grade)
     if slot < 1 or slot > maxGroups then
         return false, 'invalid_slot'
     end
@@ -87,7 +82,7 @@ end
 ---@param name string
 ---@param grade number
 ---@return table | false, string | nil
-function groups.add(charId, groupList, cat, name, grade)
+function MnrGroups.add(charId, groupList, cat, name, grade)
     if findByName(groupList, name) then
         return false, 'name_taken'
     end
@@ -108,7 +103,7 @@ end
 ---@param groupList table
 ---@param slot number
 ---@return table | false, string | nil
-function groups.removeBySlot(charId, groupList, slot)
+function MnrGroups.removeBySlot(charId, groupList, slot)
     if not groupList[slot] then
         return false, 'slot_empty'
     end
@@ -124,7 +119,7 @@ end
 ---@param groupList table
 ---@param name string
 ---@return table | false, string | nil
-function groups.removeByName(charId, groupList, name)
+function MnrGroups.removeByName(charId, groupList, name)
     local slot = findByName(groupList, name)
     if not slot then
         return false, 'not_found'
@@ -142,7 +137,7 @@ end
 ---@param slot number
 ---@param duty boolean
 ---@return table | false, string | nil
-function groups.setDuty(charId, groupList, slot, duty)
+function MnrGroups.setDuty(charId, groupList, slot, duty)
     if not groupList[slot] then
         return false, 'slot_empty'
     end
@@ -153,4 +148,4 @@ function groups.setDuty(charId, groupList, slot, duty)
     return groupList
 end
 
-return groups
+return MnrGroups

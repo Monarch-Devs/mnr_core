@@ -1,5 +1,5 @@
 local status = require 'server.player.status'
-local groups = require 'server.player.groups'
+local MnrGroups = require 'server.player.groups'
 
 local MnrPlayer = {}
 MnrPlayer.__index = MnrPlayer
@@ -30,11 +30,11 @@ function MnrPlayer:loadChar(data)
     }
 
     self.status = status.load(self.charId)
-    self.groups = groups.load(self.charId)
+    self.groups = MnrGroups.load(self.charId)
 end
 
 function MnrPlayer:addGroup(cat, name, grade)
-    local result, err = groups.add(self.charId, self.groups, cat, name, grade)
+    local result, err = MnrGroups.add(self.charId, self.groups, cat, name, grade)
     if not result then
         return false, err
     end
@@ -45,7 +45,7 @@ function MnrPlayer:addGroup(cat, name, grade)
 end
 
 function MnrPlayer:setGroup(slot, cat, name, grade)
-    local result, err = groups.set(self.charId, self.groups, slot, cat, name, grade)
+    local result, err = MnrGroups.set(self.charId, self.groups, slot, cat, name, grade)
     if not result then
         return false, err
     end
@@ -78,7 +78,7 @@ function MnrPlayer:getGroupsByCategory(cat)
 end
 
 function MnrPlayer:removeGroup(slot)
-    local result, err = groups.removeBySlot(self.charId, self.groups, slot)
+    local result, err = MnrGroups.removeBySlot(self.charId, self.groups, slot)
     if not result then
         return false, err
     end
@@ -91,7 +91,7 @@ end
 ---@param slot number
 ---@param duty boolean
 function MnrPlayer:setDuty(slot, duty)
-    local result, err = groups.setDuty(self.charId, self.groups, slot, duty)
+    local result, err = MnrGroups.setDuty(self.charId, self.groups, slot, duty)
     if not result then
         return false, err
     end
@@ -107,7 +107,7 @@ function MnrPlayer:save()
     if not self.charId then return end
 
     status.save(self.charId, self.status)
-    groups.save(self.charId, self.groups)
+    MnrGroups.save(self.charId, self.groups)
 end
 
 return MnrPlayer

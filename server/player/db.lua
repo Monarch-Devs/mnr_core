@@ -108,6 +108,7 @@ end
 local GET_GROUPS = 'SELECT `slot`, `cat`, `name`, `grade`, `duty` FROM `char_groups` WHERE `charId` = ? ORDER BY `slot` ASC'
 -- Database query used to get the groups of a character
 ---@param charId number
+---@return table groups
 function db.getGroups(charId)
     return MySQL.query.await(GET_GROUPS, { charId })
 end
