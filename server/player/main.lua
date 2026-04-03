@@ -131,23 +131,29 @@ end)
 local function onPlayerDropped(reason)
     local src = source
 
+    GlobalState.OnlinePlayers = GetNumPlayerIndices()
+
+    if not Players[src] then
+        return
+    end
+
     Players[src]:save()
     Players[src] = nil
-    GlobalState.OnlinePlayers -= 1
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)
 
 local function getPlayerData(source, field, sub)
     local src = source
+
     if not Players[src] then
         return false
     end
 
     if not sub then
-        return Players[field]
+        return Players[src][field]
     else
-        return Players[field][sub]
+        return Players[src][field] and Players[src][field][sub] or false
     end
 end
 

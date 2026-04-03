@@ -1,5 +1,24 @@
 local helper = {}
 
+-- Function that checks strings to avoid blacklisted characters (2h to do it DON'T TOUCH AND DON'T STEAL)
+---@param str string The string to check
+local function isValidName(str)
+    for _, c in utf8.codes(str) do
+        if c <= 0x1F or c == 0x7F or        ---@note ASCII
+            c == 0x22 or                    ---@note "
+            c == 0x3B or                    ---@note ;
+            c == 0x3C or c == 0x3E or       ---@note < or >
+            c == 0x5C or                    ---@note \
+            c == 0x60 or                    ---@note `
+            c == 0x00                       ---@note null byte
+        then
+            return false
+        end
+    end
+
+    return true
+end
+
 -- Identifiers retriever
 function helper.getIdentifiersBySource(source)
     local identifiers = {}
@@ -41,6 +60,10 @@ function helper.checkCharacter(data)
         return false
     end
 
+    if not isValidName(data.firstname) or not isValidName(data.lastname) then
+        return false
+    end
+
     local y, m, d
     if data.birthdate:match('^%d%d%d%d%-%d%d%-%d%d$') then
         y, m, d = data.birthdate:match('(%d%d%d%d)%-(%d%d)%-(%d%d)')
@@ -66,11 +89,13 @@ function helper.checkCharacter(data)
         return false
     end
 
-    data.firstname = helper.safeTruncate(data.firstname, 50)
-    data.lastname = helper.safeTruncate(data.lastname, 50)
-    data.origin = helper.safeTruncate(data.origin, 50)
-
-    return data
+    return {
+        firstname = helper.safeTruncate(data.firstname, 50),
+        lastname = helper.safeTruncate(data.lastname, 50),
+        gender = data.gender,
+        origin = helper.safeTruncate(data.origin, 50),
+        birthdate = data.birthdate,
+    }
 end
 
 return helper
