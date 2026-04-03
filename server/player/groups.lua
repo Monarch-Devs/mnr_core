@@ -13,7 +13,12 @@ function groups.load(charId)
 
     for _, group in ipairs(data) do
         if group.slot >= 1 and group.slot <= maxGroups then
-            slots[group.slot] = { cat = group.cat, name = group.name, grade = group.grade }
+            slots[group.slot] = {
+                cat = group.cat,
+                name = group.name,
+                grade = group.grade,
+                duty = group.duty == 1,
+            }
         end
     end
 
@@ -128,6 +133,22 @@ function groups.removeByName(charId, groupList, name)
     db.deleteGroupByName(charId, name)
 
     groupList[slot] = false
+
+    return groupList
+end
+
+---@param charId number
+---@param groupList table
+---@param slot number
+---@param duty boolean
+---@return table | false, string | nil
+function groups.setDuty(charId, groupList, slot, duty)
+    if not groupList[slot] then
+        return false, 'slot_empty'
+    end
+
+    db.setDuty(charId, slot, duty)
+    groupList[slot].duty = duty
 
     return groupList
 end

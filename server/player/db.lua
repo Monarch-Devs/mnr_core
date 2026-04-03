@@ -105,20 +105,20 @@ function db.saveStatus(charId, data)
     MySQL.prepare.await(SAVE_STATUS, { charId, data.health, data.armor, data.hunger, data.thirst, data.stress })
 end
 
-local GET_GROUPS = 'SELECT `slot`, `cat`, `name`, `grade` FROM `char_groups` WHERE `charId` = ? ORDER BY `slot` ASC'
+local GET_GROUPS = 'SELECT `slot`, `cat`, `name`, `grade`, `duty` FROM `char_groups` WHERE `charId` = ? ORDER BY `slot` ASC'
 -- Database query used to get the groups of a character
 ---@param charId number
 function db.getGroups(charId)
     return MySQL.query.await(GET_GROUPS, { charId })
 end
 
-local SAVE_GROUP = 'INSERT INTO `char_groups` (`charId`, `slot`, `cat`, `name`, `grade`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `cat` = VALUES(`cat`), `name` = VALUES(`name`), `grade` = VALUES(`grade`)'
+local SAVE_GROUP = 'INSERT INTO `char_groups` (`charId`, `slot`, `cat`, `name`, `grade`, `duty`) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `cat` = VALUES(`cat`), `name` = VALUES(`name`), `grade` = VALUES(`grade`), `duty` = VALUES(`duty`)'
 -- Database query used to save a group of a character
 ---@param charId number
 ---@param slot number
 ---@param data table
 function db.saveGroup(charId, slot, data)
-    MySQL.prepare.await(SAVE_GROUP, { charId, slot, data.cat, data.name, data.grade })
+    MySQL.prepare.await(SAVE_GROUP, { charId, slot, data.cat, data.name, data.grade, data.duty and 1 or 0 })
 end
 
 local DELETE_GROUP_SLOT = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `slot` = ?'
@@ -132,6 +132,11 @@ local DELETE_GROUP = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `name` = 
 ---@param name string
 function db.deleteGroupByName(charId, name)
     MySQL.prepare.await(DELETE_GROUP, { charId, name })
+end
+
+local SET_DUTY = 'UPDATE `char_groups` SET `duty` = ? WHERE `charId` = ? AND `slot` = ?'
+function db.setDuty(charId, slot, duty)
+    MySQL.prepare.await(SET_DUTY, { duty and 1 or 0, charId, slot })
 end
 
 return db

@@ -85,6 +85,21 @@ function MnrPlayer:removeGroup(slot)
     return true
 end
 
+---@param slot number
+---@param duty boolean
+function MnrPlayer:setDuty(slot, duty)
+    local result, err = groups.setDuty(self.charId, self.groups, slot, duty)
+    if not result then
+        return false, err
+    end
+
+    self.groups = result
+
+    TriggerClientEvent('mnr_core:client:DutyChanged', self:getSource(), slot, duty)
+
+    return true
+end
+
 function MnrPlayer:save()
     if not self.charId then return end
 

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `char_groups` (
     `cat` VARCHAR(32) NOT NULL,
     `name` VARCHAR(64) NOT NULL,
     `grade` TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    `duty` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`charId`, `slot`),
     UNIQUE KEY `unique_group_name` (`charId`, `name`),
     FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
