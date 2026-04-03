@@ -43,7 +43,12 @@ local function onPlayerJoining(loginId)
     local src = source
     local userId = store.queueGet(loginId)
 
-    store.set(src, MnrPlayer.new(userId))
+    if not userId then
+        DropPlayer(src, 'Session error, please reconnect.')
+        return
+    end
+
+    store.set(src, MnrPlayer.new(userId, src))
     store.queueRemove(loginId)
 
     GlobalState.OnlinePlayers += 1

@@ -1,3 +1,9 @@
 ---@class MnrPlayer
----@field userId number The ID retrieved from database associated to user identifiers
----@field charId number The ID of the character choosen
+---@field userId number
+---@field charId number
+---@field source number
+---@field bio { firstname: string, lastname: string, gender: string, origin: string, birthdate: string } | nil
+---@field status { health: number, armor: number, hunger: number, thirst: number, stress: number } | nil
+---@field groups table | nil
+---@field save fun(self: MnrPlayer)
+---@field loadChar fun(self: MnrPlayer, character: table)

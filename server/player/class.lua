@@ -6,8 +6,14 @@ MnrPlayer.__index = MnrPlayer
 
 -- Constructor function
 ---@param userId number User ID retrieved from database
-function MnrPlayer.new(userId)
-    return setmetatable({ userId = userId }, MnrPlayer)
+function MnrPlayer.new(userId, src)
+    return setmetatable({ userId = userId, source = src }, MnrPlayer)
+end
+
+-- Function to get the source of the player
+---@return number source The source of the player
+function MnrPlayer:getSource()
+    return self.source
 end
 
 -- Class expansion function (Biography)
