@@ -1,14 +1,14 @@
 local db = require 'server.player.db'
 
-local status = {}
+local MnrStatus = {}
 
-function status.load(charId)
+function MnrStatus.load(charId)
     local data = db.getStatus(charId)
 
-    return data or { health = 200, armor = 0, hunger = 100.0, thirst = 100.0 }
+    return data or { health = 200, armor = 0, hunger = 100, thirst = 100, stress = 0 }
 end
 
-function status.save(charId, data)
+function MnrStatus.save(charId, data)
     if not data then
         return
     end
@@ -16,4 +16,4 @@ function status.save(charId, data)
     db.saveStatus(charId, data)
 end
 
-return status
+return MnrStatus

@@ -34,16 +34,25 @@ end
 
 -- Safe string truncator
 function helper.safeTruncate(str, maxBytes)
+    if type(str) ~= 'string' then
+        return ''
+    end
+
     if #str <= maxBytes then
         return str
     end
 
-    local cut = utf8.offset(str, maxBytes + 1)
-    if cut then
+    local ok, cut = pcall(utf8.offset, str, maxBytes + 1)
+    if ok and cut then
         return str:sub(1, cut - 1)
     end
 
-    ---@todo Sanitize instead of returning empty string
+    for i = maxBytes, 1, -1 do
+        if utf8.len(str:sub(1, i)) then
+            return str:sub(1, i)
+        end
+    end
+
     return ''
 end
 

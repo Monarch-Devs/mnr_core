@@ -1,5 +1,4 @@
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
-local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
 local spawn = require 'config.spawn'
 
@@ -100,7 +99,7 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
         return false, 'invalid_data'
     end
 
-    local charId = db.createCharacter(userId, slot, character)
+    local charId = db.createCharacter(userId, slot, data)
     if not charId then
         return false, 'creation_failed'
     end
@@ -126,6 +125,7 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     end
 
     player:loadChar(character)
+    store.setChar(source, character.charId)
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 

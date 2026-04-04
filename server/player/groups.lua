@@ -1,4 +1,5 @@
-local maxGroups = GetConvarInt('mnr:maxGroups', 2)
+local maxGroups = GetConvarInt('mnr:maxGroups', 2)          ---@note If modified changes only after server restart, can be done runtime but doesn't make sense
+
 local db = require 'server.player.db'
 
 local MnrGroups = {}
@@ -8,7 +9,7 @@ function MnrGroups.load(charId)
 
     local slots = {}
     for i = 1, maxGroups do
-        slots[i] = { cat = 'CIV', name = 'civilian', grade = 1, duty = false }
+        slots[i] = false
     end
 
     for _, group in ipairs(data) do
@@ -21,12 +22,14 @@ function MnrGroups.load(charId)
 end
 
 function MnrGroups.save(charId, data)
-    if not data then
-        return
-    end
+    if not data then return end
+
+    db.deleteAllGroups(charId)
 
     for i, group in ipairs(data) do
-        db.saveGroup(charId, i, group)
+        if type(group) == 'table' then
+            db.saveGroup(charId, i, group)
+        end
     end
 end
 

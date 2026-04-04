@@ -3,6 +3,7 @@ local store = {}
 
 local _queue = {}
 local _players = {}
+local _characters = {}
 
 -- Function used to add a player with his loginId
 ---@param loginId string The given temporary ID to connecting player
@@ -41,7 +42,28 @@ end
 -- Function to cleanup player class after logout
 ---@param src number The NetId of the player
 function store.remove(src)
+    local player = _players[src]
+
+    if player and player.charId then
+        _characters[player.charId] = nil
+    end
+
     _players[src] = nil
+end
+
+-- Function to add a link between player charId and source (simplified search)
+---@param src number The NetId of the player
+---@param charId number The ID of the character used
+function store.setChar(src, charId)
+    _characters[charId] = src
+end
+
+-- Function to get player class from charId
+---@param charId number The ID of the character used
+function store.getByCharId(charId)
+    local src = _characters[charId]
+
+    return src and _players[src] or false
 end
 
 return store

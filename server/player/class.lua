@@ -1,4 +1,4 @@
-local status = require 'server.player.status'
+local MnrStatus = require 'server.player.status'
 local MnrGroups = require 'server.player.groups'
 
 local MnrPlayer = {}
@@ -29,7 +29,7 @@ function MnrPlayer:loadChar(data)
         birthdate = data.birthdate,
     }
 
-    self.status = status.load(self.charId)
+    self.status = MnrStatus.load(self.charId)
     self.groups = MnrGroups.load(self.charId)
 end
 
@@ -106,7 +106,7 @@ end
 function MnrPlayer:save()
     if not self.charId then return end
 
-    status.save(self.charId, self.status)
+    MnrStatus.save(self.charId, self.status)
     MnrGroups.save(self.charId, self.groups)
 end
 

@@ -1,5 +1,6 @@
 return {
-    ['civilian'] = {
+    -- This is a default group only for visual when group is false (Don't change 'default' name)
+    ['default'] = {
         label = 'Civilian',
         cat = 'CIV',
         grades = {
