@@ -1,3 +1,4 @@
+local MnrMoney = require 'server.player.money'
 local MnrStatus = require 'server.player.status'
 local MnrGroups = require 'server.player.groups'
 
@@ -108,6 +109,22 @@ function MnrPlayer:save()
 
     MnrStatus.save(self.charId, self.status)
     MnrGroups.save(self.charId, self.groups)
+end
+
+function MnrPlayer:getMoney(moneyType)
+    if not self.money then
+        return 0
+    end
+
+    return self.money[moneyType] or false
+end
+
+function MnrPlayer:addMoney(moneyType, amount, reason)
+    return MnrMoney.add(self.charId, self.money, moneyType, amount, reason)
+end
+
+function MnrPlayer:removeMoney(moneyType, amount, reason)
+    return MnrMoney.remove(self.charId, self.money, moneyType, amount, reason)
 end
 
 return MnrPlayer
