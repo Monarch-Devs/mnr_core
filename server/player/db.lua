@@ -135,9 +135,24 @@ function db.deleteGroupByName(charId, name)
     MySQL.prepare.await(DELETE_GROUP, { charId, name })
 end
 
+local DELETE_ALL_GROUPS = 'DELETE FROM `char_groups` WHERE `charId` = ?'
+function db.deleteAllGroups(charId)
+    MySQL.prepare.await(DELETE_ALL_GROUPS, { charId })
+end
+
 local SET_DUTY = 'UPDATE `char_groups` SET `duty` = ? WHERE `charId` = ? AND `slot` = ?'
 function db.setDuty(charId, slot, duty)
     MySQL.prepare.await(SET_DUTY, { duty and 1 or 0, charId, slot })
+end
+
+local GET_MONEY = 'SELECT `money`, `bank`, `black_money` FROM `char_money` WHERE `charId` = ? LIMIT 1'
+function db.getMoney(charId)
+    return MySQL.single.await(GET_MONEY, { charId })
+end
+
+local SAVE_MONEY = 'INSERT INTO `char_money` (`charId`, `money`, `bank`, `black_money`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `money` = VALUES(`money`), `bank` = VALUES(`bank`), `black_money` = VALUES(`black_money`)'
+function db.saveMoney(charId, data)
+    MySQL.prepare.await(SAVE_MONEY, { charId, data.money, data.bank, data.black_money })
 end
 
 return db

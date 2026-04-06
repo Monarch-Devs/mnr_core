@@ -61,7 +61,7 @@ function MnrMoney.remove(charId, money, moneyType, amount, reason)
     end
 
     money[moneyType] = money[moneyType] - amount
-    db.saveMoney(charId, wallet)
+    db.saveMoney(charId, money)
 
     return true
 end

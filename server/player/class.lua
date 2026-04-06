@@ -30,8 +30,9 @@ function MnrPlayer:loadChar(data)
         birthdate = data.birthdate,
     }
 
-    self.status = MnrStatus.load(self.charId)
+    self.money = MnrMoney.load(self.charId)
     self.groups = MnrGroups.load(self.charId)
+    self.status = MnrStatus.load(self.charId)
 end
 
 function MnrPlayer:addGroup(cat, name, grade)
@@ -107,8 +108,9 @@ end
 function MnrPlayer:save()
     if not self.charId then return end
 
-    MnrStatus.save(self.charId, self.status)
+    MnrMoney.save(self.charId, self.money)
     MnrGroups.save(self.charId, self.groups)
+    MnrStatus.save(self.charId, self.status)
 end
 
 function MnrPlayer:getMoney(moneyType)
@@ -116,7 +118,7 @@ function MnrPlayer:getMoney(moneyType)
         return 0
     end
 
-    return self.money[moneyType] or false
+    return self.money[moneyType] or 0
 end
 
 function MnrPlayer:addMoney(moneyType, amount, reason)
