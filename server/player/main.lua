@@ -151,6 +151,11 @@ end
 
 AddEventHandler('playerDropped', onPlayerDropped)
 
+-- Function to take data from specific fields/subfields of a player (What frameworks didn't done for years)
+---@param source number The source of the player
+---@param field string The field of player class (bio, money, etc.)
+---@param sub? string The subfield of player class (firstname, bank, etc.)
+---@return unknown | false value The value contained in the field/subfield
 local function getPlayerData(source, field, sub)
     local src = source
 
@@ -160,7 +165,7 @@ local function getPlayerData(source, field, sub)
     end
 
     if not sub then
-        return player[field]
+        return player[field] and player[field] or false
     else
         return player[field] and player[field][sub] or false
     end
