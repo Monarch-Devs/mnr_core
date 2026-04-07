@@ -3,6 +3,7 @@ local store = {}
 
 local _queue = {}
 local _players = {}
+local _users = {}
 local _characters = {}
 
 -- Function used to add a player with his loginId
@@ -51,7 +52,23 @@ function store.remove(src)
     _players[src] = nil
 end
 
--- Function to add a link between player charId and source (simplified search)
+-- Function to relate player userId and source (for simplified search)
+---@param src number The NetId of the player
+---@param userId number The ID of the user
+function store.addUserLink(src, userId)
+    _users[userId] = src
+end
+
+-- Function to get player class from userId
+---@param userId number The ID of the user
+---@return MnrPlayer | false
+function store.getByUserId(userId)
+    local src = _users[userId]
+
+    return src and _players[src] or false
+end
+
+-- Function to add a link between player charId and source (for simplified search)
 ---@param src number The NetId of the player
 ---@param charId number The ID of the character used
 function store.setChar(src, charId)
@@ -60,6 +77,7 @@ end
 
 -- Function to get player class from charId
 ---@param charId number The ID of the character used
+---@return MnrPlayer | false
 function store.getByCharId(charId)
     local src = _characters[charId]
 
