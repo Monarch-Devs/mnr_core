@@ -1,6 +1,6 @@
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
-local spawn = require 'config.spawn'
+local status = require 'config.status'
 
 local store = require 'server.player.store'
 local helper = require 'server.player.helper'
@@ -172,3 +172,15 @@ local function getPlayerData(source, field, sub)
 end
 
 exports('GetPlayerData', getPlayerData)
+
+lib.cron.new(('*/%d * * * *'):format(status.interval), function()
+    for src, player in pairs(store.getAll()) do
+        player.status.hunger -= status.degrade.hunger
+        player.status.thirst -= status.degrade.thirst
+        player.status.stress -= status.degrade.stress
+
+        Player(src).state:set('hunger', player.status.hunger, true)
+        Player(src).state:set('thirst', player.status.thirst, true)
+        Player(src).state:set('stress', player.status.stress, true)
+    end
+end)

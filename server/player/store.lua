@@ -1,4 +1,3 @@
--- [BETA] Experimental queue/players data store
 local store = {}
 
 local _queue = {}
@@ -38,6 +37,12 @@ end
 ---@return MnrPlayer
 function store.get(src)
     return _players[src]
+end
+
+-- Function to get all players
+---@return table _players
+function store.getAll()
+    return _players
 end
 
 -- Function to cleanup player class after logout
