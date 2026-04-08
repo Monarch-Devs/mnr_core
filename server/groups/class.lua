@@ -8,7 +8,7 @@ function MnrGroup.new(name, cat)
         duty = {},
         online = {},
         offline = {},
-    }, MnrPlayer)
+    }, MnrGroup)
 end
 
 return MnrGroup
