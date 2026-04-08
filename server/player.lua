@@ -2,7 +2,7 @@ local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
 local status = require 'config.status'
 
-local playerCache = require 'server.player.cache'
+local playersCache = require 'server.player.cache'
 local helper = require 'server.player.helper'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
@@ -27,7 +27,7 @@ local function onPlayerConnecting(name, _, deferrals)
     local userId = db.userLogin(identifiers, maxCharacters)
 
     if userId then
-        playerCache.queueSet(loginId, userId --[[@as number]])
+        playersCache.addQueue(loginId, userId --[[@as number]])
         deferrals.done()
     else
         deferrals.done(('Hi %s. There is a problem with user logins, retry later'):format(name))
@@ -40,15 +40,15 @@ AddEventHandler('playerConnecting', onPlayerConnecting)
 ---@param loginId string
 local function onPlayerJoining(loginId)
     local src = source
-    local userId = playerCache.queueGet(loginId)
+    local userId = playersCache.getQueue(loginId)
 
     if not userId then
         DropPlayer(src, 'Session error, please reconnect.')
         return
     end
 
-    playerCache.set(src, MnrPlayer.new(userId, src))
-    playerCache.queueRemove(loginId)
+    playersCache.addPlayer(src, MnrPlayer.new(userId, src))
+    playersCache.removeQueue(loginId)
 
     GlobalState.OnlinePlayers += 1
 end
@@ -59,7 +59,7 @@ AddEventHandler('playerJoining', onPlayerJoining)
 ---@param source number
 ---@return number | boolean, table | boolean
 lib.callback.register('mnr_core:server:GetCharacters', function(source)
-    local player = playerCache.get(source)
+    local player = playersCache.getPlayer(source)
     if not player then
         return false, false
     end
@@ -77,7 +77,7 @@ end)
 ---@param slot number
 ---@return number | false, string | nil
 lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
-    local player = playerCache.get(source)
+    local player = playersCache.getPlayer(source)
     if not player then
         return false, 'no_player'
     end
@@ -112,7 +112,7 @@ end)
 ---@param slot number
 ---@return boolean loaded
 lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
-    local player = playerCache.get(source)
+    local player = playersCache.getPlayer(source)
     if not player or type(slot) ~= 'number' then
         return false
     end
@@ -125,7 +125,7 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     end
 
     player:loadChar(character)
-    playerCache.setChar(source, character.charId)
+    playersCache.setChar(source, character.charId)
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
@@ -140,13 +140,13 @@ local function onPlayerDropped(reason)
 
     GlobalState.OnlinePlayers = GetNumPlayerIndices()
 
-    local player = playerCache.get(src)
+    local player = playersCache.getPlayer(src)
     if not player then
         return
     end
 
     player:save()
-    playerCache.remove(src)
+    playersCache.removePlayer(src)
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)
@@ -159,7 +159,7 @@ AddEventHandler('playerDropped', onPlayerDropped)
 local function getPlayerData(source, field, sub)
     local src = source
 
-    local player = playerCache.get(src)
+    local player = playersCache.getPlayer(src)
     if not player then
         return false
     end
@@ -174,7 +174,7 @@ end
 exports('GetPlayerData', getPlayerData)
 
 lib.cron.new(('*/%d * * * *'):format(status.interval), function()
-    for src, player in pairs(playerCache.getAll()) do
+    for src, player in pairs(playersCache.getAllPlayers()) do
         player.status.hunger -= status.degrade.hunger
         player.status.thirst -= status.degrade.thirst
         player.status.stress -= status.degrade.stress

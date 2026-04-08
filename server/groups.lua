@@ -1,5 +1,7 @@
 local groups = require 'config.groups'
 
+local groupsCache = require 'server.groups.cache'
+local MnrGroup = require 'server.groups.class'
 local db = require 'server.groups.db'
 
 local function updateGroups()
