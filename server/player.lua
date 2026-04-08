@@ -48,6 +48,7 @@ local function onPlayerJoining(loginId)
     end
 
     playersCache.addPlayer(src, MnrPlayer.new(userId, src))
+    playersCache.addUserLink(src, userId)
     playersCache.removeQueue(loginId)
 
     GlobalState.OnlinePlayers += 1
@@ -125,7 +126,7 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     end
 
     player:loadChar(character)
-    playersCache.setChar(source, character.charId)
+    playersCache.addCharLink(source, character.charId)
 
     ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
 
