@@ -27,7 +27,7 @@ local function updateGroups()
     for name, group in pairs(groups) do
         db.addGroup(name, group.label, group.cat)
 
-        for level, grade in pairs(data.grades) do
+        for level, grade in pairs(group.grades) do
             db.addGrade(name, level, grade.label)
         end
 
