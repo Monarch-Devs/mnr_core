@@ -128,10 +128,8 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     player:loadChar(character)
     playersCache.addCharLink(source, character.charId)
 
-    ---@deprecated [SPAWN MODULE] Better a spawn dedicated script
-
-    TriggerClientEvent('mnr_core:client:CharacterLoaded', source, character)
-    TriggerEvent('mnr_core:server:CharacterLoaded', source, character)
+    TriggerClientEvent('mnr:client:OnCharacterLoaded', source, character)
+    TriggerEvent('mnr:server:OnCharacterLoaded', source, character)
 
     return true
 end)
