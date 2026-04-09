@@ -54,7 +54,7 @@ end
 function playersCache.removePlayer(src)
     local player = _players[src]
 
-    _userId[player.userId] = nil
+    _users[player.userId] = nil
 
     if player and player.charId then
         _characters[player.charId] = nil
