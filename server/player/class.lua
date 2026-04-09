@@ -143,14 +143,17 @@ end
 ---@param amount number
 ---@return boolean
 function MnrPlayer:addMoney(moneyType, amount)
-    if not moneyTypes[moneyType] then return false end
+    if not moneyTypes[moneyType] then
+        return false
+    end
 
     amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then return false end
+    if amount <= 0 then
+        return false
+    end
 
-    local newValue = self.money[moneyType] + amount
-    db.saveMoney(self.charId, { [moneyType] = newValue })
-    self.money[moneyType] = newValue
+    self.money[moneyType] += amount
+    db.saveMoney(self.charId, self.money)
 
     return true
 end
@@ -159,15 +162,21 @@ end
 ---@param amount number
 ---@return boolean
 function MnrPlayer:removeMoney(moneyType, amount)
-    if not moneyTypes[moneyType] then return false end
+    if not moneyTypes[moneyType] then
+        return false
+    end
 
     amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then return false end
-    if self.money[moneyType] < amount then return false end
+    if amount <= 0 then
+        return false
+    end
 
-    local newValue = self.money[moneyType] - amount
-    db.saveMoney(self.charId, { [moneyType] = newValue })
-    self.money[moneyType] = newValue
+    if self.money[moneyType] < amount then
+        return false
+    end
+
+    self.money[moneyType] -= amount
+    db.saveMoney(self.charId, self.money)
 
     return true
 end

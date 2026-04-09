@@ -155,4 +155,32 @@ function db.saveMoney(charId, data)
     MySQL.prepare.await(SAVE_MONEY, { charId, data.money, data.bank, data.black_money })
 end
 
+local GET_DOCS = 'SELECT `type`, `issued_at`, `expires_at` FROM `char_docs` WHERE `charId` = ?'
+---@param charId number
+---@return table docs
+function db.getDocs(charId)
+    local rows = MySQL.query.await(GET_DOCS, { charId }) or {}
+    local result = {}
+    for _, row in ipairs(rows) do
+        result[row.type] = { issued_at = row.issued_at, expires_at = row.expires_at or nil }
+    end
+
+    return result
+end
+
+local SAVE_DOC = 'INSERT INTO `char_docs` (`charId`, `type`, `expires_at`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `expires_at` = VALUES(`expires_at`)'
+---@param charId number
+---@param docType string
+---@param expiresAt string | nil
+function db.addDoc(charId, docType, expiresAt)
+    MySQL.prepare.await(SAVE_DOC, { charId, docType, expiresAt or nil })
+end
+
+local DELETE_DOC = 'DELETE FROM `char_docs` WHERE `charId` = ? AND `type` = ?'
+---@param charId number
+---@param docType string
+function db.removeDoc(charId, docType)
+    MySQL.prepare.await(DELETE_DOC, { charId, docType })
+end
+
 return db

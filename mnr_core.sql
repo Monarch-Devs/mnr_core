@@ -83,16 +83,16 @@ CREATE TABLE IF NOT EXISTS `char_position` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `groups` (
-    `name`  VARCHAR(64) NOT NULL,
+    `name` VARCHAR(64) NOT NULL,
     `label` VARCHAR(64) NOT NULL,
-    `cat`   VARCHAR(32) NOT NULL,
+    `cat` VARCHAR(32) NOT NULL,
     PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `group_grades` (
     `group_name` VARCHAR(64)  NOT NULL,
-    `grade`      TINYINT UNSIGNED NOT NULL,
-    `label`      VARCHAR(64)  NOT NULL,
+    `grade` TINYINT UNSIGNED NOT NULL,
+    `label` VARCHAR(64)  NOT NULL,
     PRIMARY KEY (`group_name`, `grade`),
     FOREIGN KEY (`group_name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

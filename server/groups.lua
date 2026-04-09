@@ -5,8 +5,6 @@ local MnrGroup = require 'server.groups.class'
 local db = require 'server.groups.db'
 
 local function updateGroups()
-    local result = { added = 0, deleted = 0 }
-
     local dbGroups = db.getGroupsNames()
 
     if not dbGroups then
@@ -17,7 +15,6 @@ local function updateGroups()
         local count = db.getGroupIsUsed(name)
         if not count or count == 0 then
             db.deleteGroup(name)
-            result.deleted += 1
             print(('[mnr_core] Group "%s" removed from DB (no active assignments)'):format(name))
         elseif count > 0 then
             print(('[mnr_core] WARNING: group "%s" removed from config but %d characters still have it (keeping in DB)'):format(name, count))
@@ -33,22 +30,15 @@ local function updateGroups()
             db.addGrade(name, level, grade.label)
         end
 
-        result.added += 1
+        groupsCache.addGroup(name, MnrGroup.new(name, group.cat))
     end
-
-    return result
 end
 
 AddEventHandler('onResourceStart', function(name)
     if GetCurrentResourceName() ~= name then return end
 
     CreateThread(function()
-        local result = updateGroups()
-
-        if result.added > 0 or result.deleted > 0 then
-            print(('[MONARCH GROUPS]: updated DB with "config/groups.lua" groups (Added: %d, Deleted: %d)'):format(result.added, result.deleted))
-        end
-
+        updateGroups()
         ---@todo GROUP LOGIC
     end)
 end)
