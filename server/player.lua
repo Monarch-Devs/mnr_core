@@ -1,7 +1,6 @@
 local adaptiveCard = GetConvarBool('mnr:adaptiveCard', true) and GetResourceState('mnr_adaptivecard') == 'started'
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
-local adaptivecard = require 'config.adaptivecard'
 local status = require 'config.status'
 
 local playersCache = require 'server.player.cache'
