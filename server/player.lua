@@ -1,3 +1,4 @@
+local adaptiveCard = GetConvarBool('mnr:adaptiveCard', true) and GetResourceState('mnr_adaptivecard') == 'started'
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
 local adaptivecard = require 'config.adaptivecard'
@@ -10,6 +11,24 @@ local MnrPlayer = require 'server.player.class'
 
 GlobalState:set('OnlinePlayers', 0, true)
 
+local function _doLogin(loginId, name, deferrals)
+    deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
+
+    local identifiers = utils.getIdentifiers(loginId)
+    if not identifiers.license2 then
+        deferrals.done('Missing license2.')
+        return
+    end
+
+    local userId = db.userLogin(identifiers, maxCharacters)
+    if userId then
+        playersCache.addQueue(loginId, userId --[[@as number]])
+        deferrals.done()
+    else
+        deferrals.done('Login error, retry later.')
+    end
+end
+
 -- Function attached to "playerConnecting" handler. Note: loginId is converted to string because in playerJoining the type is string
 ---@param name string The name of the connecting player
 local function onPlayerConnecting(name, _, deferrals)
@@ -17,31 +36,17 @@ local function onPlayerConnecting(name, _, deferrals)
 
     deferrals.defer()
 
-    Wait(1000)                              ---@note THIS IS A MANDATORY WAIT NEEDED FOR CLIENT TO LOAD CARD (DON'T REMOVE OR CHANGE)
+    if adaptiveCard then
+        exports.mnr_adaptivecard:PresentCard(name, deferrals, function(accepted)
+            if not accepted then
+                return
+            end
 
-    deferrals.presentCard(adaptivecard, function(data, rawData)
-        if not data or data.action ~= 'accept' then
-            deferrals.done('Declined ToS & Privacy.')
-            return
-        end
-
-        deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
-
-        local identifiers = utils.getIdentifiers(loginId)
-        if not identifiers.license2 then
-            deferrals.done(('Missing license2.'):format(name))
-            return
-        end
-
-        local userId = db.userLogin(identifiers, maxCharacters)
-        if userId then
-            playersCache.addQueue(loginId, userId --[[@as number]])
-            deferrals.done()
-        else
-            deferrals.done(('Login error, retry later.'):format(name))
-            return
-        end
-    end)
+            _doLogin(loginId, name, deferrals)
+        end)
+    else
+        _doLogin(loginId, name, deferrals)
+    end
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
