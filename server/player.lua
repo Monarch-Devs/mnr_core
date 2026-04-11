@@ -1,5 +1,6 @@
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
+local adaptivecard = require 'config.adaptivecard'
 local status = require 'config.status'
 
 local playersCache = require 'server.player.cache'
@@ -16,23 +17,31 @@ local function onPlayerConnecting(name, _, deferrals)
 
     deferrals.defer()
 
-    deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
+    Wait(1000)                              ---@note THIS IS A MANDATORY WAIT NEEDED FOR CLIENT TO LOAD CARD (DON'T REMOVE OR CHANGE)
 
-    local identifiers = utils.getIdentifiers(loginId)
-    if not identifiers.license2 then
-        deferrals.done(('Hi %s. We didn\'t find a valid identifier (license2)'):format(name))
-        return
-    end
+    deferrals.presentCard(adaptivecard, function(data, rawData)
+        if not data or data.action ~= 'accept' then
+            deferrals.done('Declined ToS & Privacy.')
+            return
+        end
 
-    local userId = db.userLogin(identifiers, maxCharacters)
+        deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
 
-    if userId then
-        playersCache.addQueue(loginId, userId --[[@as number]])
-        deferrals.done()
-    else
-        deferrals.done(('Hi %s. There is a problem with user logins, retry later'):format(name))
-        return
-    end
+        local identifiers = utils.getIdentifiers(loginId)
+        if not identifiers.license2 then
+            deferrals.done(('Missing license2.'):format(name))
+            return
+        end
+
+        local userId = db.userLogin(identifiers, maxCharacters)
+        if userId then
+            playersCache.addQueue(loginId, userId --[[@as number]])
+            deferrals.done()
+        else
+            deferrals.done(('Login error, retry later.'):format(name))
+            return
+        end
+    end)
 end
 
 AddEventHandler('playerConnecting', onPlayerConnecting)
