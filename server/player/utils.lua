@@ -1,4 +1,4 @@
-local helper = {}
+local utils = {}
 
 -- Function that checks strings to avoid blacklisted characters (2h to do it DON'T TOUCH AND DON'T STEAL)
 ---@param str string The string to check
@@ -19,21 +19,8 @@ local function isValidName(str)
     return true
 end
 
--- Identifiers retriever
-function helper.getIdentifiersBySource(source)
-    local identifiers = {}
-
-    identifiers.license = GetPlayerIdentifierByType(source, 'license')
-    identifiers.license2 = GetPlayerIdentifierByType(source, 'license2')
-    identifiers.fivem = GetPlayerIdentifierByType(source, 'fivem')
-    identifiers.steam = GetPlayerIdentifierByType(source, 'steam')
-    identifiers.discord = GetPlayerIdentifierByType(source, 'discord')
-
-    return identifiers
-end
-
 -- Safe string truncator
-function helper.safeTruncate(str, maxBytes)
+local function safeTruncate(str, maxBytes)
     if type(str) ~= 'string' then
         return ''
     end
@@ -56,8 +43,26 @@ function helper.safeTruncate(str, maxBytes)
     return ''
 end
 
+-- Retrieves player identifiers and returns them in a table
+---@param loginId string
+---@return MnrUserIdentifiers identifiers
+function utils.getIdentifiers(loginId)
+    local identifiers = {}
+    local playerIds = GetPlayerIdentifiers(loginId)
+
+    for i = 1, #playerIds do
+        local cat, identifier = string.match(playerIds[i], '([^:]+):(.+)')
+
+        if cat ~= 'ip' and cat ~= 'xbl' and cat ~= 'live' then
+            identifiers[cat] = identifier
+        end
+    end
+
+    return identifiers
+end
+
 -- Character Validator
-function helper.checkCharacter(data)
+function utils.checkCharacter(data)
     local REQUIRED_FIELDS = { 'firstname', 'lastname', 'gender', 'origin', 'birthdate' }
     for _, name in pairs(REQUIRED_FIELDS) do
         if data[name] == nil or type(data[name]) ~= 'string' or data[name]:match('^%s*$') then
@@ -99,12 +104,12 @@ function helper.checkCharacter(data)
     end
 
     return {
-        firstname = helper.safeTruncate(data.firstname, 50),
-        lastname = helper.safeTruncate(data.lastname, 50),
+        firstname = safeTruncate(data.firstname, 50),
+        lastname = safeTruncate(data.lastname, 50),
         gender = data.gender,
-        origin = helper.safeTruncate(data.origin, 50),
+        origin = safeTruncate(data.origin, 50),
         birthdate = data.birthdate,
     }
 end
 
-return helper
+return utils

@@ -7,3 +7,10 @@
 ---@field groups table | nil
 ---@field save fun(self: MnrPlayer)
 ---@field loadChar fun(self: MnrPlayer, character: table)
+
+---@class MnrUserIdentifiers
+---@field license string
+---@field license2 string
+---@field fivem string
+---@field steam string
+---@field discord string

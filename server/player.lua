@@ -3,7 +3,7 @@ local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 local status = require 'config.status'
 
 local playersCache = require 'server.player.cache'
-local helper = require 'server.player.helper'
+local utils = require 'server.player.utils'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
@@ -18,7 +18,7 @@ local function onPlayerConnecting(name, _, deferrals)
 
     deferrals.update(('Hi %s. We are checking your identifiers in database...'):format(name))
 
-    local identifiers = helper.getIdentifiersBySource(loginId)
+    local identifiers = utils.getIdentifiers(loginId)
     if not identifiers.license2 then
         deferrals.done(('Hi %s. We didn\'t find a valid identifier (license2)'):format(name))
         return
@@ -95,7 +95,7 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
         return false, 'slot_taken'
     end
 
-    local data = helper.checkCharacter(character)
+    local data = utils.checkCharacter(character)
     if not data then
         return false, 'invalid_data'
     end
