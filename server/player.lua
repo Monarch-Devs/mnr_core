@@ -8,6 +8,7 @@ local utils = require 'server.player.utils'
 local db = require 'server.player.db'
 local MnrPlayer = require 'server.player.class'
 
+GlobalState:set('MaxClients', GetConvarInt('sv_maxclients', 48), true)
 GlobalState:set('OnlinePlayers', 0, true)
 
 local function _doLogin(loginId, name, deferrals)
@@ -30,10 +31,15 @@ end
 
 -- Function attached to "playerConnecting" handler. Note: loginId is converted to string because in playerJoining the type is string
 ---@param name string The name of the connecting player
+---@param deferrals FiveMConnectingDeferrals
 local function onPlayerConnecting(name, _, deferrals)
     local loginId = tostring(source)
 
     deferrals.defer()
+
+    if GlobalState.OnlinePlayers == GlobalState.MaxClients then
+        deferrals.done('Max Players limit reached, retry when a player slot becomes available.')
+    end
 
     if adaptiveCard then
         exports.mnr_adaptivecard:PresentCard(name, deferrals, function(accepted)
@@ -150,7 +156,7 @@ end)
 local function onPlayerDropped(reason)
     local src = source
 
-    GlobalState.OnlinePlayers = GetNumPlayerIndices()
+    GlobalState.OnlinePlayers -= 1
 
     local player = playersCache.getPlayer(src)
     if not player then

@@ -1,3 +1,10 @@
+---@class FiveMConnectingDeferrals
+---@field handover fun(payload: table)
+---@field defer fun()
+---@field update fun(message: string)
+---@field presentCard fun(card: string, cb?: fun(data: table, rawData: string))
+---@field done fun(reason?: string)
+
 ---@class MnrPlayer
 ---@field userId number
 ---@field charId number
