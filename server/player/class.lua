@@ -77,11 +77,11 @@ end
 function MnrPlayer:_saveGroups()
     if not self.groups then return end
 
-    db.deleteAllGroups(self.charId)
-
     for i, group in ipairs(self.groups) do
         if type(group) == 'table' then
             db.saveGroup(self.charId, i, group)
+        else
+            db.deleteGroupBySlot(self.charId, i)
         end
     end
 end
@@ -153,7 +153,6 @@ function MnrPlayer:addMoney(moneyType, amount)
     end
 
     self.money[moneyType] += amount
-    db.saveMoney(self.charId, self.money)
 
     return true
 end
@@ -176,7 +175,6 @@ function MnrPlayer:removeMoney(moneyType, amount)
     end
 
     self.money[moneyType] -= amount
-    db.saveMoney(self.charId, self.money)
 
     return true
 end
@@ -195,8 +193,8 @@ function MnrPlayer:addGroup(cat, name, grade)
         return false, 'no_free_slot'
     end
 
-    db.saveGroup(self.charId, slot, { cat = cat, name = name, grade = grade })
-    self.groups[slot] = { cat = cat, name = name, grade = grade }
+    db.saveGroup(self.charId, slot, { cat = cat, name = name, grade = grade, duty = false })
+    self.groups[slot] = { cat = cat, name = name, grade = grade, duty = false }
 
     return true
 end
@@ -215,8 +213,8 @@ function MnrPlayer:setGroup(slot, cat, name, grade)
         return false, 'name_taken'
     end
 
-    db.saveGroup(self.charId, slot, { cat = cat, name = name, grade = grade })
-    self.groups[slot] = { cat = cat, name = name, grade = grade }
+    db.saveGroup(self.charId, slot, { cat = cat, name = name, grade = grade, duty = false })
+    self.groups[slot] = { cat = cat, name = name, grade = grade, duty = false }
 
     return true
 end

@@ -37,6 +37,8 @@ local function onPlayerConnecting(name, _, deferrals)
 
     deferrals.defer()
 
+    Wait(0)
+
     if GlobalState.OnlinePlayers == GlobalState.MaxClients then
         deferrals.done('Max Players limit reached, retry when a player slot becomes available.')
     end

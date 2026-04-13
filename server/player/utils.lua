@@ -108,7 +108,7 @@ function utils.checkCharacter(data)
         lastname = safeTruncate(data.lastname, 50),
         gender = data.gender,
         origin = safeTruncate(data.origin, 50),
-        birthdate = data.birthdate,
+        birthdate = ('%04d-%02d-%02d'):format(y, m, d),
     }
 end
 

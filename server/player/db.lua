@@ -35,12 +35,12 @@ function db.getUserSlots(userId)
     return slots
 end
 
-local GET_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? ORDER BY `slot` ASC'
+local GET_CHARACTERS = 'SELECT `charId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? AND `slot` <= ? ORDER BY `slot` ASC'
 -- Database query used to get user's character slots and all their characters
 ---@param userId number
 ---@return table characters
 function db.getUserCharacters(userId, slots)
-    local rows = MySQL.query.await(GET_CHARACTERS, { userId }) or {}
+    local rows = MySQL.query.await(GET_CHARACTERS, { userId, slots }) or {}
 
     local characters = {}
     for i = 1, slots do
@@ -133,11 +133,6 @@ local DELETE_GROUP = 'DELETE FROM `char_groups` WHERE `charId` = ? AND `name` = 
 ---@param name string
 function db.deleteGroupByName(charId, name)
     MySQL.prepare.await(DELETE_GROUP, { charId, name })
-end
-
-local DELETE_ALL_GROUPS = 'DELETE FROM `char_groups` WHERE `charId` = ?'
-function db.deleteAllGroups(charId)
-    MySQL.prepare.await(DELETE_ALL_GROUPS, { charId })
 end
 
 local SET_DUTY = 'UPDATE `char_groups` SET `duty` = ? WHERE `charId` = ? AND `slot` = ?'

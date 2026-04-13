@@ -20,6 +20,7 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'server/system.lua',
     'server/groups/*.lua',
     'server/groups.lua',
     'server/player/*.lua',

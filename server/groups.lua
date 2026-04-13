@@ -8,7 +8,7 @@ local function updateGroups()
     local dbGroups = db.getGroupsNames()
 
     if not dbGroups then
-        goto continue                       ---@note First server start (DB population not done)
+        goto sync_groups                       ---@note First server start (DB population not done)
     end
 
     for name in pairs(dbGroups) do
@@ -21,7 +21,7 @@ local function updateGroups()
         end
     end
 
-    ::continue::
+    ::sync_groups::
 
     for name, group in pairs(groups) do
         db.addGroup(name, group.label, group.cat)

@@ -10,6 +10,7 @@
 ---@field charId number
 ---@field source number
 ---@field bio { firstname: string, lastname: string, gender: string, origin: string, birthdate: string } | nil
+---@field money { money: number, bank: number, black_money: number } | nil
 ---@field status { health: number, armor: number, hunger: number, thirst: number, stress: number } | nil
 ---@field groups table | nil
 ---@field save fun(self: MnrPlayer)
