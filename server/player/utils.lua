@@ -35,7 +35,7 @@ local function safeTruncate(str, maxBytes)
     end
 
     for i = maxBytes, 1, -1 do
-        if utf8.len(str:sub(1, i)) then
+        if (str:byte(i) & 0xC0) ~= 0x80 then
             return str:sub(1, i)
         end
     end
