@@ -52,7 +52,7 @@ end
 ---@description [SECTION] GROUPS FUNCTIONS
 
 function MnrPlayer:_loadGroups()
-    local data = db.getGroups(self.charId)
+    local data = db.getGroups(self.charId) or {}
 
     self.groups = {}
     for i = 1, maxGroups do
@@ -134,7 +134,7 @@ function MnrPlayer:getMoney(moneyType)
 end
 
 function MnrPlayer:addMoney(moneyType, amount)
-    if not moneyTypes[moneyType] then
+    if not self.money or not moneyTypes[moneyType] then
         return false
     end
 
@@ -149,7 +149,7 @@ function MnrPlayer:addMoney(moneyType, amount)
 end
 
 function MnrPlayer:removeMoney(moneyType, amount)
-    if not moneyTypes[moneyType] then
+    if not self.money or not moneyTypes[moneyType] then
         return false
     end
 
