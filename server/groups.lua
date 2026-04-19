@@ -12,13 +12,18 @@ local function updateGroups()
     end
 
     for name in pairs(dbGroups) do
+        if groups[name] then goto skip_group end
+
         local count = db.getGroupIsUsed(name)
         if not count or count == 0 then
             db.deleteGroup(name)
             print(('[mnr_core] Group "%s" removed from DB (no active assignments)'):format(name))
         elseif count > 0 then
+            ---@todo deletion of the group from characters to avoid errors when they join the game
             print(('[mnr_core] WARNING: group "%s" removed from config but %d characters still have it (keeping in DB)'):format(name, count))
         end
+
+        ::skip_group::
     end
 
     ::sync_groups::
