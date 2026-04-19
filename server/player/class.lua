@@ -19,8 +19,8 @@ local function _findByName(groups, name)
         if type(v) == 'table' and v.name == name then return i end
     end
 end
----@type MnrPlayer
----@diagnostic disable-next-line: missing-fields
+
+---@class MnrPlayer
 local MnrPlayer = {}
 MnrPlayer.__index = MnrPlayer
 
