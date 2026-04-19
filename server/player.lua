@@ -196,12 +196,16 @@ exports('GetPlayerData', getPlayerData)
 
 lib.cron.new(('*/%d * * * *'):format(status.interval), function()
     for src, player in pairs(playersCache.getAllPlayers()) do
-        player.status.hunger -= status.degrade.hunger
-        player.status.thirst -= status.degrade.thirst
-        player.status.stress -= status.degrade.stress
+        if not player.charId then goto skip_degrade end
+
+        player.status.hunger = math.max(0, player.status.hunger - status.degrade.hunger)
+        player.status.thirst = math.max(0, player.status.thirst - status.degrade.thirst)
+        player.status.stress = math.max(0, player.status.stress - status.degrade.stress)
 
         Player(src).state:set('hunger', player.status.hunger, true)
         Player(src).state:set('thirst', player.status.thirst, true)
         Player(src).state:set('stress', player.status.stress, true)
+
+        ::skip_degrade::
     end
 end)
