@@ -6,15 +6,34 @@
 ---@field done fun(reason?: string)
 
 ---@class MnrPlayer
----@field userId number
+---@field __index self
+---@field userId number                                                                                                 User ID of the player linked to identifiers
 ---@field charId number
 ---@field source number
 ---@field bio { firstname: string, lastname: string, gender: string, origin: string, birthdate: string } | nil
 ---@field money { money: number, bank: number, black_money: number } | nil
+---@field groups table
+---@field docs table
 ---@field status { health: number, armor: number, hunger: number, thirst: number, stress: number } | nil
----@field groups table | nil
----@field save fun(self: MnrPlayer)
----@field loadChar fun(self: MnrPlayer, character: table)
+---@field new fun(userId: number, src: number): self
+---@field getSource fun(self: self): number
+---@field _loadMoney fun(self: self)
+---@field _saveMoney fun(self: self)
+---@field _loadGroups fun(self: self)
+---@field _saveGroups fun(self: self)
+---@field _loadStatus fun(self: self)
+---@field _saveStatus fun(self: self)
+---@field loadChar fun(self: self, character: table)
+---@field save fun(self: self)
+---@field getMoney fun(self: self, moneyType: number): number
+---@field addMoney fun(self: self, moneyType: number, amount: number): boolean
+---@field removeMoney fun(self: self, moneyType: number, amount: number): boolean
+---@field addGroup fun(self: self, cat: string, name: string, grade: number): boolean, string | nil
+---@field setGroup fun(self: self, slot: number, cat: string, name: string, grade: number): boolean, string | nil
+---@field getGroup fun(self: self, name: string): table | false, number | nil
+---@field getGroupsByCategory fun(self: self, cat: string): table
+---@field removeGroup fun(self: self, slot: number): boolean, string | nil
+---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                   Used to set player duty
 
 ---@class MnrUserIdentifiers
 ---@field license string
