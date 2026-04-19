@@ -88,8 +88,8 @@ lib.callback.register('mnr_core:server:GetCharacters', function(source)
     end
 
     local userId = player.userId
-    local slots = db.getUserSlots(userId)
-    local characters = db.getUserCharacters(userId, slots or maxCharacters)
+    local slots = db.getUserSlots(userId) or maxCharacters
+    local characters = db.getUserCharacters(userId, slots)
 
     return slots, characters
 end)
@@ -106,7 +106,7 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     end
 
     local userId = player.userId
-    local slots = db.getUserSlots(userId)
+    local slots = db.getUserSlots(userId) or maxCharacters
     local characters = db.getUserCharacters(userId, slots)
 
     if slot > slots or slot < 1 then
