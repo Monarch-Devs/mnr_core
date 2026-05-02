@@ -166,7 +166,7 @@ end
 local SAVE_DOC = 'INSERT INTO `char_docs` (`charId`, `type`, `expires_at`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `expires_at` = VALUES(`expires_at`)'
 ---@param charId number
 ---@param docType string
----@param expiresAt string | nil
+---@param expiresAt string | osdate | nil
 function db.addDoc(charId, docType, expiresAt)
     MySQL.prepare.await(SAVE_DOC, { charId, docType, expiresAt or nil })
 end

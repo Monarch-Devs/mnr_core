@@ -5,6 +5,10 @@
 ---@field presentCard fun(card: string, cb?: fun(data: table, rawData: string))
 ---@field done fun(reason?: string)
 
+---@class DocsType
+---@field issued_at string | osdate
+---@field expires_at string | osdate | nil
+
 ---@class MnrPlayer
 ---@field __index self
 ---@field userId number                                                                                                 User ID of the player linked to identifiers
@@ -13,7 +17,7 @@
 ---@field bio { firstname: string, lastname: string, gender: string, origin: string, birthdate: string } | nil
 ---@field money { money: number, bank: number, black_money: number } | nil
 ---@field groups table
----@field docs table
+---@field docs table<string, DocsType>
 ---@field status { health: number, armor: number, hunger: number, thirst: number, stress: number } | nil
 ---@field new fun(userId: number, src: number): self
 ---@field getSource fun(self: self): number
@@ -21,6 +25,7 @@
 ---@field _saveMoney fun(self: self)
 ---@field _loadGroups fun(self: self)
 ---@field _saveGroups fun(self: self)
+---@field _loadDocs fun(self: self)
 ---@field _loadStatus fun(self: self)
 ---@field _saveStatus fun(self: self)
 ---@field loadChar fun(self: self, character: table)
@@ -34,6 +39,9 @@
 ---@field getGroupsByCategory fun(self: self, cat: string): table
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                   Used to set player duty
+---@field hasDoc fun(self: self, docType: string): boolean
+---@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
+---@field removeDoc fun(self: self, docType: string): boolean, string | nil
 
 ---@class MnrUserIdentifiers
 ---@field license string

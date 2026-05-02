@@ -1,5 +1,6 @@
 local db = require 'server.player.db'
 local moneyTypes = require 'config.moneyTypes'
+local docsTypes = require 'config.docsTypes'
 
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
@@ -83,7 +84,31 @@ function MnrPlayer:_saveGroups()
     end
 end
 
----@description [SECTION] STATUS FUNCTIONS
+---@section DOCS LOAD/SAVE FUNCTIONS
+
+function MnrPlayer:_loadDocs()
+    local data = db.getDocs(self.charId)
+    local now = os.date('%Y-%m-%d %H:%M:%S')
+    self.docs = {}
+
+    for docType, doc in pairs(data) do
+        if doc.expires_at and doc.expires_at < now then
+            db.removeDoc(self.charId, docType)
+        else
+            self.docs[docType] = doc
+        end
+    end
+
+    for docType, docData in pairs(docsTypes) do
+        if not self.docs[docType] and docData.starter then
+            local expiresAt = docData.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + docData.duration) or nil
+            db.addDoc(self.charId, docType, expiresAt)
+            self.docs[docType] = { issued_at = now, expires_at = expiresAt }
+        end
+    end
+end
+
+---@section STATUS LOAD/SAVE FUNCTIONS
 
 function MnrPlayer:_loadStatus()
     self.status = db.getStatus(self.charId) or {
@@ -116,6 +141,7 @@ function MnrPlayer:loadChar(data)
 
     self:_loadMoney()
     self:_loadGroups()
+    self:_loadDocs()
     self:_loadStatus()
 end
 
@@ -239,6 +265,39 @@ function MnrPlayer:setDuty(slot, duty)
     self.groups[slot].duty = duty
 
     TriggerClientEvent('mnr:client:DutyChanged', self:getSource(), slot, duty)
+
+    return true
+end
+
+function MnrPlayer:addDoc(docType, expiresAt)
+    db.addDoc(self.charId, docType, expiresAt)
+    self.docs[docType] = { issued_at = os.date('%Y-%m-%d %H:%M:%S'), expires_at = expiresAt }
+    return true
+end
+
+function MnrPlayer:removeDoc(docType)
+    if not self.docs or not self.docs[docType] then
+        return false, 'not_found'
+    end
+
+    db.removeDoc(self.charId, docType)
+    self.docs[docType] = nil
+
+    return true
+end
+
+function MnrPlayer:hasDoc(docType)
+    if not self.docs or not self.docs[docType] then
+        return false
+    end
+
+    local doc = self.docs[docType]
+    if doc.expires_at and doc.expires_at < os.date('%Y-%m-%d %H:%M:%S') then
+        db.removeDoc(self.charId, docType)
+        self.docs[docType] = nil
+
+        return false
+    end
 
     return true
 end
