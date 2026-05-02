@@ -1,49 +1,66 @@
 local groups = require 'config.groups'
-
 local groupsCache = require 'server.groups.cache'
 local MnrGroup = require 'server.groups.class'
 local db = require 'server.groups.db'
 
-local function updateGroups()
+local function dbGroupsCleanup()
     local dbGroups = db.getGroupsNames()
 
-    if not dbGroups then
-        goto sync_groups                       ---@note First server start (DB population not done)
-    end
+    if dbGroups then
+        for name in pairs(dbGroups) do
+            if groups[name] then goto skip_group end
 
-    for name in pairs(dbGroups) do
-        if groups[name] then goto skip_group end
-
-        local count = db.getGroupIsUsed(name)
-        if not count or count == 0 then
             db.deleteGroup(name)
-            print(('[mnr_core] Group "%s" removed from DB (no active assignments)'):format(name))
-        elseif count > 0 then
-            ---@todo deletion of the group from characters to avoid errors when they join the game
-            print(('[mnr_core] WARNING: group "%s" removed from config but %d characters still have it (keeping in DB)'):format(name, count))
-        end
+            print(('[mnr_core] Removed orphan group "%s" (cascade)'):format(name))
 
-        ::skip_group::
+            ::skip_group::
+        end
     end
 
-    ::sync_groups::
+    local minGradeByGroup = {}
 
     for name, group in pairs(groups) do
         db.addGroup(name, group.label, group.cat)
+        db.addGrades(name, group.grades)
 
-        for level, grade in pairs(group.grades) do
-            db.addGrade(name, level, grade.label)
+        local dbGrades = db.getGroupGrades(name) or {}
+        local minGrade = math.maxinteger
+
+        for level in pairs(group.grades) do
+            if level < minGrade then
+                minGrade = level
+            end
+        end
+
+        minGradeByGroup[name] = minGrade ~= math.maxinteger and minGrade or 1
+
+        for level in pairs(dbGrades) do
+            if group.grades[level] then goto skip_grade end
+
+            db.deleteGrade(name, level)
+            print(('[mnr_core] Removed orphan grade %d from "%s"'):format(level, name))
+
+            ::skip_grade::
+        end
+    end
+
+    for name, group in pairs(groups) do
+        local minGrade = minGradeByGroup[name]
+        local rows = db.getCharGroups(name) or {}
+
+        for _, row in ipairs(rows) do
+            if group.grades[row.grade] then goto skip_char_grade end
+
+            db.updateCharGroupGrade(row.charId, name, minGrade)
+            print(('[mnr_core] FIXED char %d group "%s": grade -> %d (MIN RESET)'):format(row.charId, name, minGrade))
+
+            ::skip_char_grade::
         end
 
         groupsCache.addGroup(name, MnrGroup.new(name, group.cat))
     end
+
+    print('[mnr_core] Groups cleanup completed')
 end
 
-AddEventHandler('onResourceStart', function(name)
-    if GetCurrentResourceName() ~= name then return end
-
-    CreateThread(function()
-        updateGroups()
-        ---@todo GROUP LOGIC
-    end)
-end)
+CreateThread(dbGroupsCleanup)

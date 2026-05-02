@@ -58,7 +58,8 @@ CREATE TABLE IF NOT EXISTS `char_groups` (
     `duty` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`charId`, `slot`),
     UNIQUE KEY `unique_group_name` (`charId`, `name`),
-    FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
+    FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE,
+    FOREIGN KEY (`name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `char_status` (
