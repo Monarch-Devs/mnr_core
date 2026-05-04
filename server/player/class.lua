@@ -1,6 +1,7 @@
 local db = require 'server.player.db'
 local moneyTypes = require 'config.moneyTypes'
 local docsTypes = require 'config.docsTypes'
+local statusTypes = require 'config.statusTypes'
 
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
@@ -111,13 +112,17 @@ end
 ---@section STATUS LOAD/SAVE FUNCTIONS
 
 function MnrPlayer:_loadStatus()
-    self.status = db.getStatus(self.charId) or {
-        health = 200,
-        armor = 0,
-        hunger = 100,
-        thirst = 100,
-        stress = 0,
-    }
+    local data = db.getStatus(self.charId)
+
+    for name, status in pairs(statusTypes) do
+        if not data then
+            self.status[name] = status.default
+        else
+            self.status[name] = data[name] and data[name] or status.default
+        end
+
+        Player(self.source).state:set(name, self.status[name], true)
+    end
 end
 
 function MnrPlayer:_saveStatus()
@@ -133,9 +138,9 @@ function MnrPlayer:loadChar(data)
 
     self.bio = {
         firstname = data.firstname,
-        lastname  = data.lastname,
-        gender    = data.gender,
-        origin    = data.origin,
+        lastname = data.lastname,
+        gender = data.gender,
+        origin = data.origin,
         birthdate = data.birthdate,
     }
 
@@ -300,6 +305,33 @@ function MnrPlayer:hasDoc(docType)
     end
 
     return true
+end
+
+function MnrPlayer:setStatus(name, value, operator)
+    if not self.status[name] or not value or type(value) ~= 'number' then
+        return false
+    end
+
+    if operator == '+' then
+        self.status[name] += value
+    elseif operator == '-' then
+        self.status[name] -= value
+    else
+        self.status[name] = value
+    end
+
+    Player(source).state:set(name, self.status[name], true)
+end
+
+function MnrPlayer:degradeStatus()
+    for name, status in pairs(statusTypes) do
+        if not status.degrade then goto skip_status end
+
+        self.status[name] = lib.math.clamp(self.status.hunger - status.degrade, status.min, status.max)
+        Player(self.source).state:set(name, self.status[name], true)
+
+        ::skip_status::
+    end
 end
 
 return MnrPlayer

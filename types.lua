@@ -38,10 +38,12 @@
 ---@field getGroup fun(self: self, name: string): table | false, number | nil
 ---@field getGroupsByCategory fun(self: self, cat: string): table
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
----@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                   Used to set player duty
----@field hasDoc fun(self: self, docType: string): boolean
+---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
 ---@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil
+---@field hasDoc fun(self: self, docType: string): boolean
+---@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                         Used to set a specific field status value (operator can be applied to not get the value before the set)
+---@field degradeStatus fun(self: self)                                                                                     Internal function to loop it simulating status decrease
 
 ---@class MnrUserIdentifiers
 ---@field license string

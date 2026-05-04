@@ -1,0 +1,3 @@
+return {
+    interval = 15,
+}

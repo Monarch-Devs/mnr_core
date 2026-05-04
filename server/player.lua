@@ -1,7 +1,7 @@
 local adaptiveCard = GetConvarBool('mnr:adaptiveCard', true) and GetResourceState('mnr_adaptivecard') == 'started'
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
-local status = require 'config.status'
+local config = require 'config.server'
 
 local playersCache = require 'server.player.cache'
 local utils = require 'server.player.utils'
@@ -194,17 +194,12 @@ end
 
 exports('GetPlayerData', getPlayerData)
 
-lib.cron.new(('*/%d * * * *'):format(status.interval), function()
-    for src, player in pairs(playersCache.getAllPlayers()) do
+---@todo Make this function more modular integrating internal functions in class and call everything here
+lib.cron.new(('*/%d * * * *'):format(config.interval), function()
+    for _, player in pairs(playersCache.getAllPlayers()) do
         if not player.charId then goto skip_degrade end
 
-        player.status.hunger = math.max(0, player.status.hunger - status.degrade.hunger)
-        player.status.thirst = math.max(0, player.status.thirst - status.degrade.thirst)
-        player.status.stress = math.max(0, player.status.stress - status.degrade.stress)
-
-        Player(src).state:set('hunger', player.status.hunger, true)
-        Player(src).state:set('thirst', player.status.thirst, true)
-        Player(src).state:set('stress', player.status.stress, true)
+        player:degradeStatus()
 
         ::skip_degrade::
     end

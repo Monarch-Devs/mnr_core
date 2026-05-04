@@ -92,7 +92,7 @@ end
 local GET_STATUS = 'SELECT `health`, `armor`, `hunger`, `thirst`, `stress` FROM `char_status` WHERE `charId` = ? LIMIT 1'
 -- Database query used to get the status of a character
 ---@param charId number
----@return table status
+---@return table | nil status
 function db.getStatus(charId)
     return MySQL.single.await(GET_STATUS, { charId })
 end
