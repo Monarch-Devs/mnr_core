@@ -135,6 +135,14 @@ function db.deleteGroupByName(charId, name)
     MySQL.prepare.await(DELETE_GROUP, { charId, name })
 end
 
+local SET_GRADE = 'UPDATE `char_groups` SET `grade` = ? WHERE `charId` = ? AND `slot` = ?'
+---@param charId number
+---@param slot number
+---@param grade number
+function db.setGrade(charId, slot, grade)
+    MySQL.prepare.await(SET_GRADE, { grade, charId, slot })
+end
+
 local SET_DUTY = 'UPDATE `char_groups` SET `duty` = ? WHERE `charId` = ? AND `slot` = ?'
 function db.setDuty(charId, slot, duty)
     MySQL.prepare.await(SET_DUTY, { duty and 1 or 0, charId, slot })

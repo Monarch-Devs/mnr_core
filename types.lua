@@ -38,6 +38,7 @@
 ---@field getGroup fun(self: self, name: string): table | false, number | nil
 ---@field getGroupsByCategory fun(self: self, cat: string): table
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
+---@field setGrade fun(self: self, slot: number, grade: number): boolean, string | nil
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
 ---@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil

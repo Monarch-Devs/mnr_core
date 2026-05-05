@@ -261,6 +261,21 @@ function MnrPlayer:removeGroup(slot)
     return true
 end
 
+function MnrPlayer:setGrade(slot, grade)
+    if not self.groups[slot] then
+        return false, 'slot_empty'
+    end
+
+    if type(grade) ~= 'number' or grade < 1 then
+        return false, 'invalid_grade'
+    end
+
+    db.setGrade(self.charId, slot, grade)
+    self.groups[slot].grade = grade
+
+    return true
+end
+
 function MnrPlayer:setDuty(slot, duty)
     if not self.groups[slot] then
         return false, 'slot_empty'

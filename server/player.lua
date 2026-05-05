@@ -172,6 +172,17 @@ end
 
 AddEventHandler('playerDropped', onPlayerDropped)
 
+---@todo Make this function more modular integrating internal functions in class and call everything here
+lib.cron.new(('*/%d * * * *'):format(config.interval), function()
+    for _, player in pairs(playersCache.getAllPlayers()) do
+        if not player.charId then goto skip_degrade end
+
+        player:degradeStatus()
+
+        ::skip_degrade::
+    end
+end)
+
 -- Function to take data from specific fields/subfields of a player (What frameworks didn't done for years)
 ---@param source number The source of the player
 ---@param field string The field of player class (bio, money, etc.)
@@ -194,13 +205,10 @@ end
 
 exports('GetPlayerData', getPlayerData)
 
----@todo Make this function more modular integrating internal functions in class and call everything here
-lib.cron.new(('*/%d * * * *'):format(config.interval), function()
-    for _, player in pairs(playersCache.getAllPlayers()) do
-        if not player.charId then goto skip_degrade end
+exports('GetPlayerByCharId', function(charId)
+    return playersCache.getByCharId(charId)
+end)
 
-        player:degradeStatus()
-
-        ::skip_degrade::
-    end
+exports('GetPlayerByUserId', function(userId)
+    return playersCache.getByUserId(userId)
 end)
