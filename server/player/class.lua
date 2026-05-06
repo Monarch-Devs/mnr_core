@@ -114,6 +114,8 @@ end
 function MnrPlayer:_loadStatus()
     local data = db.getStatus(self.charId)
 
+    self.status = {}
+
     for name, status in pairs(statusTypes) do
         if not data then
             self.status[name] = status.default
@@ -335,14 +337,14 @@ function MnrPlayer:setStatus(name, value, operator)
         self.status[name] = value
     end
 
-    Player(source).state:set(name, self.status[name], true)
+    Player(self.source).state:set(name, self.status[name], true)
 end
 
 function MnrPlayer:degradeStatus()
     for name, status in pairs(statusTypes) do
         if not status.degrade then goto skip_status end
 
-        self.status[name] = lib.math.clamp(self.status.hunger - status.degrade, status.min, status.max)
+        self.status[name] = lib.math.clamp(self.status[name] - status.degrade, status.min, status.max)
         Player(self.source).state:set(name, self.status[name], true)
 
         ::skip_status::
