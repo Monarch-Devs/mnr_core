@@ -91,4 +91,18 @@ function db.updateCharGroupGrade(charId, name, grade)
     MySQL.prepare.await(UPDATE_CHAR_GROUP_GRADE, { grade, charId, name })
 end
 
+local GET_FUNDS = 'SELECT `money`, `bank`, `black_money` FROM `group_funds` WHERE `name` = ? LIMIT 1'
+---@param name string
+---@return { money: number, bank: number, black_money: number } | nil
+function db.getFunds(name)
+    return MySQL.single.await(GET_FUNDS, { name })
+end
+
+local SAVE_FUNDS = 'INSERT INTO `group_funds` (`name`, `money`, `bank`, `black_money`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `money` = VALUES(`money`), `bank` = VALUES(`bank`), `black_money` = VALUES(`black_money`)'
+---@param name string
+---@param data { money: number, bank: number, black_money: number }
+function db.saveFunds(name, data)
+    MySQL.prepare.await(SAVE_FUNDS, { name, data.money, data.bank, data.black_money })
+end
+
 return db

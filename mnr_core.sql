@@ -97,3 +97,12 @@ CREATE TABLE IF NOT EXISTS `group_grades` (
     PRIMARY KEY (`group_name`, `grade`),
     FOREIGN KEY (`group_name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `group_funds` (
+    `name` VARCHAR(64) NOT NULL,
+    `money` INT UNSIGNED NOT NULL DEFAULT 0,
+    `bank` INT UNSIGNED NOT NULL DEFAULT 0,
+    `black_money` INT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`name`),
+    FOREIGN KEY (`name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -57,10 +57,28 @@ local function dbGroupsCleanup()
             ::skip_char_grade::
         end
 
-        groupsCache.addGroup(name, MnrGroup.new(name, group.cat))
+        groupsCache.addGroup(name, MnrGroup.new(name, group.cat, { bossPerms = group.bossPerms, fundPerms = group.fundPerms }))
     end
 
     print('[mnr_core] Groups cleanup completed')
 end
 
 CreateThread(dbGroupsCleanup)
+
+exports('GetGroupMoney', function(groupName, moneyType)
+    local group = groupsCache.getGroup(groupName)
+
+    return group and group:getMoney(moneyType) or 0
+end)
+
+exports('AddGroupMoney', function(groupName, moneyType, amount)
+    local group = groupsCache.getGroup(groupName)
+
+    return group and group:addMoney(moneyType, amount) or false
+end)
+
+exports('RemoveGroupMoney', function(groupName, moneyType, amount)
+    local group = groupsCache.getGroup(groupName)
+
+    return group and group:removeMoney(moneyType, amount) or false
+end)

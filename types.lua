@@ -9,6 +9,22 @@
 ---@field issued_at string | osdate
 ---@field expires_at string | osdate | nil
 
+---@class MnrGroup
+---@field name string
+---@field cat string
+---@field duty table
+---@field online table
+---@field offline table
+---@field bossPerms table<number, table<string, boolean>>
+---@field fundPerms table<number, table<string, boolean>>
+---@field money { money: number, bank: number, black_money: number } | nil
+---@field new fun(name: string, cat: string, perms: table): self
+---@field saveMoney fun(self: self)
+---@field getMoney fun(self: self, moneyType: string): number
+---@field addMoney fun(self: self, moneyType: string, amount: number): boolean
+---@field removeMoney fun(self: self, moneyType: string, amount: number): boolean
+---@field hasPermission fun(self: self, permTable: string, grade: number, action: string): boolean
+
 ---@class PlayerDB
 ---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
 ---@field getUserSlots fun(userId: number): number | false                                                              Used to get user's character max slots
@@ -60,6 +76,10 @@
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
 ---@field setGrade fun(self: self, slot: number, grade: number): boolean, string | nil
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
+---@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean             Used to check if player haves group permissions
+---@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
+---@field addGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
+---@field removeGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
 ---@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil
 ---@field hasDoc fun(self: self, docType: string): boolean

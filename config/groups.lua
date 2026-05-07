@@ -27,6 +27,14 @@ return {
             [14] = { label = 'Assistant Chief' },
             [15] = { label = 'Chief' },
         },
+        bossPerms = {
+            [14] = { promote = true, hire = true },
+            [15] = { promote = true, hire = true, fire = true },
+        },
+        fundPerms = {
+            [14] = { view = true, deposit = true },
+            [15] = { view = true, deposit = true, withdraw = true },
+        },
     },
     ['lsmd'] = {
         label = 'LSMD',
@@ -48,6 +56,14 @@ return {
             [14] = { label = 'Head of Department' },
             [15] = { label = 'Medical Director' },
         },
+        bossPerms = {
+            [14] = { promote = true, hire = true },
+            [15] = { promote = true, hire = true, fire = true },
+        },
+        fundPerms = {
+            [14] = { view = true, deposit = true },
+            [15] = { view = true, deposit = true, withdraw = true },
+        },
     },
     ['cartel'] = {
         label = 'Cartel',
@@ -58,6 +74,14 @@ return {
             [3] = { label = 'OG' },
             [4] = { label = 'Underboss' },
             [5] = { label = 'Boss' },
+        },
+        bossPerms = {
+            [4] = { promote = true, hire = true },
+            [5] = { promote = true, hire = true, fire = true },
+        },
+        fundPerms = {
+            [4] = { view = true, deposit = true },
+            [5] = { view = true, deposit = true, withdraw = true },
         },
     },
 }

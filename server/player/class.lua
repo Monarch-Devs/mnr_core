@@ -1,4 +1,7 @@
 local db = require 'server.player.db'
+
+local groupsCache = require 'server.groups.cache'
+
 local moneyTypes = require 'config.moneyTypes'
 local docsTypes = require 'config.docsTypes'
 local statusTypes = require 'config.statusTypes'
@@ -290,6 +293,49 @@ function MnrPlayer:setDuty(slot, duty)
 
     return true
 end
+
+---@section GROUP RELATED SECONDARY METHODS
+
+function MnrPlayer:hasGroupPermission(name, permissions, action)
+    local slot = _findByName(self.groups, name)
+    if not slot then
+        return false
+    end
+
+    local group = groupsCache.getGroup(name)
+    if not group then
+        return false
+    end
+
+    return group:hasPermission(permissions, self.groups[slot].grade, action)
+end
+
+function MnrPlayer:getGroupMoney(groupName, moneyType)
+    local grp = groupsCache.getGroup(groupName)
+
+    return grp and grp:getMoney(moneyType) or 0
+end
+
+function MnrPlayer:addGroupMoney(groupName, moneyType, amount)
+    if not self:hasGroupPermission(groupName, 'fundPerms', 'deposit') then
+        return false
+    end
+
+    local grp = groupsCache.getGroup(groupName)
+    return grp and grp:addMoney(moneyType, amount) or false
+end
+
+function MnrPlayer:removeGroupMoney(groupName, moneyType, amount)
+    if not self:hasGroupPermission(groupName, 'fundPerms', 'withdraw') then
+        return false
+    end
+
+    local grp = groupsCache.getGroup(groupName)
+
+    return grp and grp:removeMoney(moneyType, amount) or false
+end
+
+---@section DOCS METHODS
 
 function MnrPlayer:addDoc(docType, expiresAt)
     db.addDoc(self.charId, docType, expiresAt)

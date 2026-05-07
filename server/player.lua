@@ -3,6 +3,8 @@ local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
 local config = require 'config.server'
 
+local groupsCache = require 'server.groups.cache'
+
 local playersCache = require 'server.player.cache'
 local utils = require 'server.player.utils'
 local db = require 'server.player.db'
@@ -171,6 +173,80 @@ local function onPlayerDropped(reason)
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)
+
+---@param source number
+---@param targetCharId number
+---@param groupName string
+---@param grade number
+lib.callback.register('mnr_core:server:HirePlayer', function(source, targetCharId, groupName, grade)
+    local caller = playersCache.getPlayer(source)
+    if not caller then
+        return false, 'no_caller'
+    end
+
+    if not caller:hasGroupPermission(groupName, 'bossPerms', 'hire') then
+        return false, 'no_permission'
+    end
+
+    local target = playersCache.getByCharId(targetCharId)
+    if not target then
+        return false, 'target_offline'
+    end
+
+    local group = groupsCache.getGroup(groupName)
+    if not group then
+        return false, 'invalid_group'
+    end
+
+    return target:addGroup(grp.cat, groupName, grade)
+end)
+
+---@param source number
+---@param targetCharId number
+---@param groupName string
+---@param grade number
+lib.callback.register('mnr_core:server:PromotePlayer', function(source, targetCharId, groupName, grade)
+    local caller = playersCache.getPlayer(source)
+    if not caller then
+        return false, 'no_caller'
+    end
+
+    if not caller:hasGroupPermission(groupName, 'bossPerms', 'promote') then
+        return false, 'no_permission'
+    end
+
+    local target = playersCache.getByCharId(targetCharId)
+    if not target then
+        return false, 'target_offline'
+    end
+
+    local _, slot = target:getGroup(groupName)
+    if not slot then
+        return false, 'not_in_group'
+    end
+
+    return target:setGrade(slot, grade)
+end)
+
+---@param source number
+---@param targetCharId number
+---@param groupName string
+lib.callback.register('mnr_core:server:FirePlayer', function(source, targetCharId, groupName)
+    local caller = playersCache.getPlayer(source)
+    if not caller then return false, 'no_caller' end
+
+    if not caller:hasGroupPermission(groupName, 'bossPerms', 'fire') then
+        return false, 'no_permission'
+    end
+
+    local target = playersCache.getByCharId(targetCharId)
+    if not target then return false, 'target_offline' end
+
+    local _, slot = target:getGroup(groupName)
+    if not slot then return false, 'not_in_group' end
+
+    return target:removeGroup(slot)
+end)
 
 ---@todo Make this function more modular integrating internal functions in class and call everything here
 lib.cron.new(('*/%d * * * *'):format(config.interval), function()
