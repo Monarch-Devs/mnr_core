@@ -1,11 +1,11 @@
 ---@class PlayerDB
 local db = {}
 
-local UPSERT_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `license` = COALESCE(VALUES(`license`), `license`), `fivem` = COALESCE(VALUES(`fivem`), `fivem`), `steam` = COALESCE(VALUES(`steam`), `steam`), `discord` = COALESCE(VALUES(`discord`), `discord`)'
+local UPSERT_USER = 'INSERT INTO `users` (`license`, `license2`, `fivem`, `steam`, `discord`) VALUES (:license, :license2, :fivem, :steam, :discord) ON DUPLICATE KEY UPDATE `license` = COALESCE(:license, `license`), `fivem` = COALESCE(:fivem, `fivem`), `steam` = COALESCE(:steam, `steam`), `discord` = COALESCE(:discord, `discord`)'
 local GET_USER_ID = 'SELECT `userId` FROM `users` WHERE `license2` = ? LIMIT 1'
 local CREATE_SLOTS = 'INSERT IGNORE INTO `char_slots` (`userId`, `slots`) VALUES (?, ?)'
 function db.userLogin(identifiers, maxCharacters)
-    MySQL.prepare.await(UPSERT_USER, { identifiers.license, identifiers.license2, identifiers.fivem, identifiers.steam, identifiers.discord })
+    MySQL.prepare.await(UPSERT_USER, identifiers)
 
     local userId = MySQL.scalar.await(GET_USER_ID, { identifiers.license2 })
 
