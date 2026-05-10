@@ -8,7 +8,7 @@ local statusTypes = require 'config.statusTypes'
 
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
----@description [SECTION] LOCAL FUNCTIONS
+---@section LOCAL FUNCTIONS
 
 ---@return number | nil
 local function _freeSlot(groups)
@@ -37,14 +37,14 @@ function MnrPlayer:getSource()
     return self.source
 end
 
----@description [SECTION] MONEY FUNCTIONS
+---@section MONEY FUNCTIONS
 
 function MnrPlayer:_loadMoney()
     local row = db.getMoney(self.charId)
     self.money = row or {
-        money = moneyTypes.money.starter,
-        bank = moneyTypes.bank.starter,
-        black_money = moneyTypes.black_money.starter,
+        money = moneyTypes.money.playerStarter,
+        bank = moneyTypes.bank.playerStarter,
+        black_money = moneyTypes.black_money.playerStarter,
     }
 end
 
@@ -54,7 +54,7 @@ function MnrPlayer:_saveMoney()
     db.saveMoney(self.charId, self.money)
 end
 
----@description [SECTION] GROUPS FUNCTIONS
+---@section GROUPS FUNCTIONS
 
 function MnrPlayer:_loadGroups()
     local data = db.getGroups(self.charId) or {}
@@ -95,19 +95,19 @@ function MnrPlayer:_loadDocs()
     local now = os.date('%Y-%m-%d %H:%M:%S')
     self.docs = {}
 
-    for docType, doc in pairs(data) do
-        if doc.expires_at and doc.expires_at < now then
-            db.removeDoc(self.charId, docType)
+    for name, document in pairs(data) do
+        if document.expires_at and document.expires_at < now then
+            db.removeDoc(self.charId, name)
         else
-            self.docs[docType] = doc
+            self.docs[name] = document
         end
     end
 
-    for docType, docData in pairs(docsTypes) do
-        if not self.docs[docType] and docData.starter then
-            local expiresAt = docData.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + docData.duration) or nil
-            db.addDoc(self.charId, docType, expiresAt)
-            self.docs[docType] = { issued_at = now, expires_at = expiresAt }
+    for name, document in pairs(docsTypes) do
+        if not self.docs[name] and document.starter then
+            local expiresAt = document.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + document.duration) or nil
+            db.addDoc(self.charId, name, expiresAt)
+            self.docs[name] = { issued_at = now, expires_at = expiresAt }
         end
     end
 end
@@ -141,13 +141,7 @@ end
 function MnrPlayer:loadChar(data)
     self.charId = data.charId
 
-    self.bio = {
-        firstname = data.firstname,
-        lastname = data.lastname,
-        gender = data.gender,
-        origin = data.origin,
-        birthdate = data.birthdate,
-    }
+    self.bio = { firstname = data.firstname, lastname = data.lastname, gender = data.gender, origin = data.origin, birthdate = data.birthdate }
 
     self:_loadMoney()
     self:_loadGroups()
@@ -376,11 +370,11 @@ function MnrPlayer:setStatus(name, value, operator)
     end
 
     if operator == '+' then
-        self.status[name] += value
+        self.status[name] = lib.math.clamp(self.status[name] + value, statusTypes[name].min, statusTypes[name].max)
     elseif operator == '-' then
-        self.status[name] -= value
+        self.status[name] -= lib.math.clamp(self.status[name] - value, statusTypes[name].min, statusTypes[name].max)
     else
-        self.status[name] = value
+        self.status[name] = lib.math.clamp(value, statusTypes[name].min, statusTypes[name].max)
     end
 
     Player(self.source).state:set(name, self.status[name], true)

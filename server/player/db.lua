@@ -57,14 +57,14 @@ function db.createCharacter(userId, slot, character)
     return charId
 end
 
-local GET_STATUS = 'SELECT `health`, `armor`, `hunger`, `thirst`, `stress` FROM `char_status` WHERE `charId` = ? LIMIT 1'
+local GET_STATUS = 'SELECT `health`, `armour`, `hunger`, `thirst`, `stress` FROM `char_status` WHERE `charId` = ? LIMIT 1'
 function db.getStatus(charId)
     return MySQL.single.await(GET_STATUS, { charId })
 end
 
-local SAVE_STATUS = 'INSERT INTO `char_status` (`charId`, `health`, `armor`, `hunger`, `thirst`, `stress`) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `health` = VALUES(`health`), `armor` = VALUES(`armor`), `hunger` = VALUES(`hunger`), `thirst` = VALUES(`thirst`), `stress` = VALUES(`stress`)'
+local SAVE_STATUS = 'INSERT INTO `char_status` (`charId`, `health`, `armour`, `hunger`, `thirst`, `stress`) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `health` = VALUES(`health`), `armour` = VALUES(`armour`), `hunger` = VALUES(`hunger`), `thirst` = VALUES(`thirst`), `stress` = VALUES(`stress`)'
 function db.saveStatus(charId, data)
-    MySQL.prepare.await(SAVE_STATUS, { charId, data.health, data.armor, data.hunger, data.thirst, data.stress })
+    MySQL.prepare.await(SAVE_STATUS, { charId, data.health, data.armour, data.hunger, data.thirst, data.stress })
 end
 
 local GET_GROUPS = 'SELECT `slot`, `cat`, `name`, `grade`, `duty` FROM `char_groups` WHERE `charId` = ? ORDER BY `slot` ASC'

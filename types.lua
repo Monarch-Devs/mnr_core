@@ -5,6 +5,13 @@
 ---@field presentCard fun(card: string, cb?: fun(data: table, rawData: string))
 ---@field done fun(reason?: string)
 
+---@class MnrUserIdentifiers
+---@field license string
+---@field license2 string
+---@field fivem string
+---@field steam string
+---@field discord string
+
 ---@class DocsType
 ---@field issued_at string | osdate
 ---@field expires_at string | osdate | nil
@@ -54,7 +61,7 @@
 ---@field money { money: number, bank: number, black_money: number } | nil
 ---@field groups table
 ---@field docs table<string, DocsType>
----@field status { health: number, armor: number, hunger: number, thirst: number, stress: number } | nil
+---@field status { health: number, armour: number, hunger: number, thirst: number, stress: number } | nil
 ---@field new fun(userId: number, src: number): self
 ---@field getSource fun(self: self): number
 ---@field _loadMoney fun(self: self)
@@ -76,7 +83,7 @@
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
 ---@field setGrade fun(self: self, slot: number, grade: number): boolean, string | nil
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
----@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean             Used to check if player haves group permissions
+---@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean Used to check if player haves group permissions
 ---@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
 ---@field addGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
 ---@field removeGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
@@ -86,9 +93,15 @@
 ---@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                         Used to set a specific field status value (operator can be applied to not get the value before the set)
 ---@field degradeStatus fun(self: self)                                                                                     Internal function to loop it simulating status decrease
 
----@class MnrUserIdentifiers
----@field license string
----@field license2 string
----@field fivem string
----@field steam string
----@field discord string
+---@class PlayersCache
+---@field addQueue fun(loginId: string, userId: number)                                                                 Used to add a player with his loginId to caching queue
+---@field getQueue fun(loginId: string): number                                                                         Used to get player's userId using his loginId after a NetId is assigned
+---@field removeQueue fun(loginId: string)                                                                              Used to cleanup the queue table after the player is in main table
+---@field addPlayer fun(src: number, player: MnrPlayer)                                                                 Used to add a player with an assigned NetId
+---@field getPlayer fun(src: number): MnrPlayer                                                                         Used to get a player using his NetId
+---@field getAllPlayers fun(): table<number, MnrPlayer>                                                                 Used to get all players
+---@field removePlayer fun(src: number)                                                                                 Used to cleanup player class and its relative indicization links after logout
+---@field addCharLink fun(src: number, charId: number)                                                                  Used to chain player charId and source (simplified getters)
+---@field addUserLink fun(src: number, userId: number)                                                                  Used to chain player userId and source (simplified getters)
+---@field getByUserId fun(userId: number): MnrPlayer | false                                                            Used to get player class using userId (indexed getters)
+---@field getByCharId fun(charId: number): MnrPlayer | false                                                            Used to get player class using charId (indexed getters)

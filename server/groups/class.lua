@@ -1,14 +1,19 @@
--- server/groups/class.lua
 local moneyTypes = require 'config.moneyTypes'
 local db = require 'server.groups.db'
 
 ---@param name string
 ---@return table
----@todo Group not hardcoded loading using moneyTypes
 local function loadGroupMoney(name)
     local row = db.getFunds(name)
+    if row then
+        return row
+    end
 
-    return row or { money = 0, bank = 0, black_money = 0 }
+    return {
+        money = moneyTypes.money.groupStarter,
+        bank = moneyTypes.bank.groupStarter,
+        black_money = moneyTypes.black_money.groupStarter
+    }
 end
 
 ---@class MnrGroup

@@ -152,6 +152,15 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
     player:loadChar(character)
     playersCache.addCharLink(source, character.charId)
 
+    for _, data in ipairs(player.groups or {}) do
+        if type(data) == 'table' then
+            local group = groupsCache.getGroup(data.name)
+            if group then
+                group.online[character.charId] = source
+            end
+        end
+    end
+
     TriggerClientEvent('mnr:client:OnCharacterLoaded', source, character)
     TriggerEvent('mnr:server:OnCharacterLoaded', source, character)
 
@@ -169,6 +178,16 @@ local function onPlayerDropped(reason)
     end
 
     player:save()
+
+    for _, data in ipairs(player.groups or {}) do
+        if type(data) == 'table' then
+            local group = groupsCache.getGroup(data.name)
+            if group then
+                group.online[player.charId] = nil
+            end
+        end
+    end
+
     playersCache.removePlayer(src)
 end
 
@@ -198,7 +217,7 @@ lib.callback.register('mnr_core:server:HirePlayer', function(source, targetCharI
         return false, 'invalid_group'
     end
 
-    return target:addGroup(grp.cat, groupName, grade)
+    return target:addGroup(group.cat, groupName, grade)
 end)
 
 ---@param source number

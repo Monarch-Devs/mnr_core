@@ -65,6 +65,14 @@ end
 
 CreateThread(dbGroupsCleanup)
 
+AddEventHandler('onResourceStop', function(name)
+    if GetCurrentResourceName() ~= name then return end
+
+    for _, group in pairs(groupsCache.getAllGroups()) do
+        group:saveMoney()
+    end
+end)
+
 exports('GetGroupMoney', function(groupName, moneyType)
     local group = groupsCache.getGroup(groupName)
 
