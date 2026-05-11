@@ -48,6 +48,7 @@ function utils.getIdentifiers(loginId)
     for i = 1, #playerIds do
         local cat, identifier = string.match(playerIds[i], '([^:]+):(.+)')
 
+        ---@deprecated 'xbl' and 'live' are no longer to use in next updates because they're removing them
         if cat ~= 'ip' and cat ~= 'xbl' and cat ~= 'live' then
             identifiers[cat] = identifier
         end

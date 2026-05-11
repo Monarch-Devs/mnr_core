@@ -8,7 +8,7 @@ local statusTypes = require 'config.statusTypes'
 
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 
----@section LOCAL FUNCTIONS
+---@section LOCAL HELPER FUNCTIONS
 
 ---@return number | nil
 local function _freeSlot(groups)
@@ -24,6 +24,22 @@ local function _findByName(groups, name)
         if type(v) == 'table' and v.name == name then return i end
     end
 end
+
+---@param money table
+---@param moneyType string
+---@param amount number
+---@return number | false
+local function _validateMoneyOp(money, moneyType, amount)
+    if not money or not moneyTypes[moneyType] then
+        return false
+    end
+
+    amount = math.floor(tonumber(amount) or 0)
+
+    return amount > 0 and amount or false
+end
+
+---@section CLASS
 
 ---@class MnrPlayer
 local MnrPlayer = {}
@@ -66,12 +82,7 @@ function MnrPlayer:_loadGroups()
 
     for _, group in ipairs(data) do
         if group.slot >= 1 and group.slot <= maxGroups then
-            self.groups[group.slot] = {
-                cat = group.cat,
-                name = group.name,
-                grade = group.grade,
-                duty = group.duty == 1,
-            }
+            self.groups[group.slot] = { cat = group.cat, name = group.name, grade = group.grade, duty = group.duty == 1 }
         end
     end
 end
@@ -164,35 +175,23 @@ function MnrPlayer:getMoney(moneyType)
 end
 
 function MnrPlayer:addMoney(moneyType, amount)
-    if not self.money or not moneyTypes[moneyType] then
+    local result = _validateMoneyOp(self.money, moneyType, amount)
+    if not result then
         return false
     end
 
-    amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then
-        return false
-    end
-
-    self.money[moneyType] += amount
+    self.money[moneyType] += result
 
     return true
 end
 
 function MnrPlayer:removeMoney(moneyType, amount)
-    if not self.money or not moneyTypes[moneyType] then
+    local result = _validateMoneyOp(self.money, moneyType, amount)
+    if not result or self.money[moneyType] < result then
         return false
     end
 
-    amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then
-        return false
-    end
-
-    if self.money[moneyType] < amount then
-        return false
-    end
-
-    self.money[moneyType] -= amount
+    self.money[moneyType] -= result
 
     return true
 end
