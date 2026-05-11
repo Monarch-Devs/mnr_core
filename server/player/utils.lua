@@ -1,17 +1,12 @@
+local sanitizer = require 'config.sanitizer'
+
 local utils = {}
 
--- Function that checks strings to avoid blacklisted characters (2h to do it DON'T TOUCH AND DON'T STEAL)
+-- Function that checks strings to avoid blacklisted characters (2h to do it, DON'T TOUCH AND DON'T STEAL)
 ---@param str string The string to check
 local function isValidName(str)
-    for _, c in utf8.codes(str) do
-        if c <= 0x1F or c == 0x7F or        ---@note ASCII
-            c == 0x22 or                    ---@note "
-            c == 0x3B or                    ---@note ;
-            c == 0x3C or c == 0x3E or       ---@note < or >
-            c == 0x5C or                    ---@note \
-            c == 0x60 or                    ---@note `
-            c == 0x00                       ---@note null byte
-        then
+    for _, code in utf8.codes(str) do
+        if code <= 0x1F or sanitizer[code] then
             return false
         end
     end
