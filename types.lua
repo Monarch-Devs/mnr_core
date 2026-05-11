@@ -74,8 +74,7 @@
 ---@field loadChar fun(self: self, character: table)
 ---@field save fun(self: self)
 ---@field getMoney fun(self: self, moneyType: string): number
----@field addMoney fun(self: self, moneyType: string, amount: number): boolean
----@field removeMoney fun(self: self, moneyType: string, amount: number): boolean
+---@field setMoney fun(self: self, moneyType: string, amount: number, operator?: '+' | '-'): boolean
 ---@field addGroup fun(self: self, cat: string, name: string, grade: number): boolean, string | nil
 ---@field setGroup fun(self: self, slot: number, cat: string, name: string, grade: number): boolean, string | nil
 ---@field getGroup fun(self: self, name: string): table | false, number | nil

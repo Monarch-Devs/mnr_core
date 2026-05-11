@@ -174,24 +174,23 @@ function MnrPlayer:getMoney(moneyType)
     return self.money and self.money[moneyType] or 0
 end
 
-function MnrPlayer:addMoney(moneyType, amount)
+function MnrPlayer:setMoney(moneyType, amount, operator)
     local result = _validateMoneyOp(self.money, moneyType, amount)
     if not result then
         return false
     end
 
-    self.money[moneyType] += result
+    if operator == '+' then
+        self.money[moneyType] += result
+    elseif operator == '-' then
+        if self.money[moneyType] < result then
+            return false
+        end
 
-    return true
-end
-
-function MnrPlayer:removeMoney(moneyType, amount)
-    local result = _validateMoneyOp(self.money, moneyType, amount)
-    if not result or self.money[moneyType] < result then
-        return false
+        self.money[moneyType] -= result
+    else
+        self.money[moneyType] = result
     end
-
-    self.money[moneyType] -= result
 
     return true
 end
