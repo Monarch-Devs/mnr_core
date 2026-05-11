@@ -30,7 +30,7 @@
 ---@field getMoney fun(self: self, moneyType: string): number
 ---@field addMoney fun(self: self, moneyType: string, amount: number): boolean
 ---@field removeMoney fun(self: self, moneyType: string, amount: number): boolean
----@field hasPermission fun(self: self, permTable: string, grade: number, action: string): boolean
+---@field hasPermission fun(self: self, permission: 'bossPerms' | 'fundPerms', grade: number, action: string): boolean
 
 ---@class PlayerDB
 ---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login

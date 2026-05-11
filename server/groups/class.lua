@@ -20,9 +20,6 @@ end
 local MnrGroup = {}
 MnrGroup.__index = MnrGroup
 
----@param name string
----@param cat string
----@param perms { bossPerms: table<number, table<string, boolean>>, fundPerms: table<number, table<string, boolean>> }
 function MnrGroup.new(name, cat, perms)
     return setmetatable({
         name = name,
@@ -41,15 +38,10 @@ function MnrGroup:saveMoney()
     db.saveFunds(self.name, self.money)
 end
 
----@param moneyType string
----@return number
 function MnrGroup:getMoney(moneyType)
     return self.money and self.money[moneyType] or 0
 end
 
----@param moneyType string
----@param amount number
----@return boolean
 function MnrGroup:addMoney(moneyType, amount)
     if not self.money or not moneyTypes[moneyType] then
         return false
@@ -65,9 +57,6 @@ function MnrGroup:addMoney(moneyType, amount)
     return true
 end
 
----@param moneyType string
----@param amount number
----@return boolean
 function MnrGroup:removeMoney(moneyType, amount)
     if not self.money or not moneyTypes[moneyType] then
         return false
@@ -87,10 +76,6 @@ function MnrGroup:removeMoney(moneyType, amount)
     return true
 end
 
----@param permission 'bossPerms' | 'fundPerms'
----@param grade number
----@param action string
----@return boolean
 function MnrGroup:hasPermission(permission, grade, action)
     local entry = self[permission][grade]
 
