@@ -73,20 +73,14 @@ AddEventHandler('onResourceStop', function(name)
     end
 end)
 
-exports('GetGroupMoney', function(groupName, moneyType)
-    local group = groupsCache.getGroup(groupName)
+exports('GetGroupMoney', function(name, moneyType)
+    local group = groupsCache.getGroup(name)
 
     return group and group:getMoney(moneyType) or 0
 end)
 
-exports('AddGroupMoney', function(groupName, moneyType, amount)
-    local group = groupsCache.getGroup(groupName)
+exports('SetGroupMoney', function(name, moneyType, operator)
+    local group = groupsCache.getGroup(name)
 
-    return group and group:addMoney(moneyType, amount) or false
-end)
-
-exports('RemoveGroupMoney', function(groupName, moneyType, amount)
-    local group = groupsCache.getGroup(groupName)
-
-    return group and group:removeMoney(moneyType, amount) or false
+    return group and group:addMoney(moneyType, amount, operator) or false
 end)

@@ -42,36 +42,27 @@ function MnrGroup:getMoney(moneyType)
     return self.money and self.money[moneyType] or 0
 end
 
-function MnrGroup:addMoney(moneyType, amount)
+function MnrGroup:setMoney(moneyType, amount, operator)
     if not self.money or not moneyTypes[moneyType] then
         return false
     end
 
     amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then
+    if amount < 0 then
         return false
     end
 
-    self.money[moneyType] += amount
+    if operator == '+' then
+        self.money[moneyType] += amount
+    elseif operator == '-' then
+        if self.money[moneyType] < amount then
+            return false
+        end
 
-    return true
-end
-
-function MnrGroup:removeMoney(moneyType, amount)
-    if not self.money or not moneyTypes[moneyType] then
-        return false
+        self.money[moneyType] -= amount
+    else
+        self.money[moneyType] = amount
     end
-
-    amount = math.floor(tonumber(amount) or 0)
-    if amount <= 0 then
-        return false
-    end
-
-    if self.money[moneyType] < amount then
-        return false
-    end
-
-    self.money[moneyType] -= amount
 
     return true
 end

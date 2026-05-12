@@ -28,8 +28,7 @@
 ---@field new fun(name: string, cat: string, perms: table): self
 ---@field saveMoney fun(self: self)
 ---@field getMoney fun(self: self, moneyType: string): number
----@field addMoney fun(self: self, moneyType: string, amount: number): boolean
----@field removeMoney fun(self: self, moneyType: string, amount: number): boolean
+---@field setMoney fun(self: self, moneyType: string, amount: number, operator: '+' | '-'): boolean
 ---@field hasPermission fun(self: self, permission: 'bossPerms' | 'fundPerms', grade: number, action: string): boolean
 
 ---@class PlayerDB
@@ -84,8 +83,7 @@
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
 ---@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean Used to check if player haves group permissions
 ---@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
----@field addGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
----@field removeGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number): boolean
+---@field setGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number, action: 'deposit' | 'withdraw'): boolean
 ---@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil
 ---@field hasDoc fun(self: self, docType: string): boolean

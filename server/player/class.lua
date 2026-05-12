@@ -25,20 +25,6 @@ local function _findByName(groups, name)
     end
 end
 
----@param money table
----@param moneyType string
----@param amount number
----@return number | false
-local function _validateMoneyOp(money, moneyType, amount)
-    if not money or not moneyTypes[moneyType] then
-        return false
-    end
-
-    amount = math.floor(tonumber(amount) or 0)
-
-    return amount > 0 and amount or false
-end
-
 ---@section CLASS
 
 ---@class MnrPlayer
@@ -175,21 +161,25 @@ function MnrPlayer:getMoney(moneyType)
 end
 
 function MnrPlayer:setMoney(moneyType, amount, operator)
-    local result = _validateMoneyOp(self.money, moneyType, amount)
-    if not result then
+    if not self.money or not moneyTypes[moneyType] then
+        return false
+    end
+
+    amount = math.floor(tonumber(amount) or 0)
+    if amount < 0 then
         return false
     end
 
     if operator == '+' then
-        self.money[moneyType] += result
+        self.money[moneyType] += amount
     elseif operator == '-' then
-        if self.money[moneyType] < result then
+        if self.money[moneyType] < amount then
             return false
         end
 
-        self.money[moneyType] -= result
+        self.money[moneyType] -= amount
     else
-        self.money[moneyType] = result
+        self.money[moneyType] = amount
     end
 
     return true
@@ -303,28 +293,31 @@ function MnrPlayer:hasGroupPermission(name, permissions, action)
 end
 
 function MnrPlayer:getGroupMoney(groupName, moneyType)
-    local grp = groupsCache.getGroup(groupName)
+    local group = groupsCache.getGroup(groupName)
 
-    return grp and grp:getMoney(moneyType) or 0
+    return group and group:getMoney(moneyType) or 0
 end
 
-function MnrPlayer:addGroupMoney(groupName, moneyType, amount)
-    if not self:hasGroupPermission(groupName, 'fundPerms', 'deposit') then
+function MnrPlayer:setGroupMoney(groupName, moneyType, amount, action)
+    if not self:hasGroupPermission(groupName, 'fundPerms', action) then
         return false
     end
 
-    local grp = groupsCache.getGroup(groupName)
-    return grp and grp:addMoney(moneyType, amount) or false
-end
-
-function MnrPlayer:removeGroupMoney(groupName, moneyType, amount)
-    if not self:hasGroupPermission(groupName, 'fundPerms', 'withdraw') then
+    local group = groupsCache.getGroup(groupName)
+    if not group then
         return false
     end
 
-    local grp = groupsCache.getGroup(groupName)
+    local operator
+    if action == 'deposit' then
+        operator = '+'
+    elseif action == 'withdraw' then
+        operator = '-'
+    else
+        return false
+    end
 
-    return grp and grp:removeMoney(moneyType, amount) or false
+    return group and group:setMoney(moneyType, amount, operator)
 end
 
 ---@section DOCS METHODS
