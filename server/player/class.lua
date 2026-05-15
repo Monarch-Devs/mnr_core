@@ -182,8 +182,9 @@ function MnrPlayer:loadChar(slot)
     self.docs = _loadDocs(self.charId)
     self.status = _loadStatus(self.source, self.charId)
 
-    TriggerClientEvent('mnr:client:OnCharacterLoaded', self.source, character)
-    TriggerEvent('mnr:server:OnCharacterLoaded', self.source, character)
+    local payload = { charId = self.charId, bio = self.bio, money = self.money, groups = self.groups, docs = self.docs, status = self.status }
+    TriggerClientEvent('mnr:client:OnCharacterLoaded', self.source, payload)
+    TriggerEvent('mnr:server:OnCharacterLoaded', self.source, payload)
 
     return true
 end
