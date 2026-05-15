@@ -35,7 +35,7 @@
 ---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
 ---@field getUserSlots fun(userId: number): number | false                                                              Used to get user's character max slots
 ---@field getUserCharacters fun(userId: number, slots: number): table<number, table>                                    Used to get user's character slots and all their characters
----@field getCharacterBySlot fun(userId: number, slot: number): table                                                   Used to get a character from a precise slot
+---@field getCharacterBySlot fun(userId: number, slot: number): number | false, table | false                           Used to get a character from a precise slot
 ---@field createCharacter fun(userId: number, slot: number, character: table): number                                   Used to create a new character for a user
 ---@field getStatus fun(charId: number): table | nil                                                                    Used to get the status of a character
 ---@field saveStatus fun(charId: number, data: table)                                                                   Used to save the status of a character
@@ -70,7 +70,7 @@
 ---@field _loadDocs fun(self: self)
 ---@field _loadStatus fun(self: self)
 ---@field _saveStatus fun(self: self)
----@field loadChar fun(self: self, character: table)
+---@field loadChar fun(self: self, slot: number): boolean, string | nil                                                     Loads a character selected by the player in server data
 ---@field save fun(self: self)
 ---@field getMoney fun(self: self, moneyType: string): number
 ---@field setMoney fun(self: self, moneyType: string, amount: number, operator?: '+' | '-'): boolean

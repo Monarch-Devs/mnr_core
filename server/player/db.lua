@@ -47,7 +47,13 @@ end
 
 local GET_CHARACTER_BY_SLOT = 'SELECT `charId`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? AND `slot` = ? LIMIT 1'
 function db.getCharacterBySlot(userId, slot)
-    return MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
+    local res = MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
+
+    if res then
+        return res.charId, { res.firstname, res.lastname, res.gender, res.origin, res.birthdate }
+    else
+        return false, false
+    end
 end
 
 local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'

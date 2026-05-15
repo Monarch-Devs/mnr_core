@@ -24,6 +24,88 @@ local function _findByName(groups, name)
         if type(v) == 'table' and v.name == name then return i end
     end
 end
+---@section LOAD FUNCTIONS
+
+local function _loadBio(source, userId, slot)
+    local charId, bio = db.getCharacterBySlot(userId, slot)
+
+    if not charId then
+        return false
+    end
+
+    Player(source).state:set('bio', bio, true)
+
+    return charId, bio
+end
+
+local function _loadMoney(charId)
+    local money = db.getMoney(charId)
+
+    if not money then
+        return { money = moneyTypes.money.playerStarter, bank = moneyTypes.bank.playerStarter, black_money = moneyTypes.black_money.playerStarter }
+    end
+
+    return money
+end
+
+local function _loadGroups(charId)
+    local data = db.getGroups(charId) or {}
+
+    local groups = {}
+    for i = 1, maxGroups do
+        groups[i] = false
+    end
+
+    for _, group in ipairs(data) do
+        if group.slot >= 1 and group.slot <= maxGroups then
+            groups[group.slot] = { cat = group.cat, name = group.name, grade = group.grade, duty = group.duty == 1 }
+        end
+    end
+
+    return groups
+end
+
+local function _loadDocs(charId)
+    local data = db.getDocs(charId)
+    local now = os.date('%Y-%m-%d %H:%M:%S')
+
+    local docs = {}
+    for name, document in pairs(data) do
+        if document.expires_at and document.expires_at < now then
+            db.removeDoc(charId, name)
+        else
+            docs[name] = document
+        end
+    end
+
+    for name, document in pairs(docsTypes) do
+        if not docs[name] and document.starter then
+            local expiresAt = document.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + document.duration) or nil
+            db.addDoc(charId, name, expiresAt)
+            docs[name] = { issued_at = now, expires_at = expiresAt }
+        end
+    end
+
+    return docs
+end
+
+local function _loadStatus(source, charId)
+    local res = db.getStatus(charId)
+
+    local status = {}
+
+    for name, data in pairs(statusTypes) do
+        if not res then
+            data[name] = data.default
+        else
+            data[name] = res[name] and res[name] or data.default
+        end
+
+        Player(source).state:set(name, status[name], true)
+    end
+
+    return status
+end
 
 ---@section CLASS
 
@@ -39,38 +121,10 @@ function MnrPlayer:getSource()
     return self.source
 end
 
----@section MONEY FUNCTIONS
-
-function MnrPlayer:_loadMoney()
-    local row = db.getMoney(self.charId)
-    self.money = row or {
-        money = moneyTypes.money.playerStarter,
-        bank = moneyTypes.bank.playerStarter,
-        black_money = moneyTypes.black_money.playerStarter,
-    }
-end
-
 function MnrPlayer:_saveMoney()
     if not self.money then return end
 
     db.saveMoney(self.charId, self.money)
-end
-
----@section GROUPS FUNCTIONS
-
-function MnrPlayer:_loadGroups()
-    local data = db.getGroups(self.charId) or {}
-
-    self.groups = {}
-    for i = 1, maxGroups do
-        self.groups[i] = false
-    end
-
-    for _, group in ipairs(data) do
-        if group.slot >= 1 and group.slot <= maxGroups then
-            self.groups[group.slot] = { cat = group.cat, name = group.name, grade = group.grade, duty = group.duty == 1 }
-        end
-    end
 end
 
 function MnrPlayer:_saveGroups()
@@ -84,8 +138,6 @@ function MnrPlayer:_saveGroups()
         end
     end
 end
-
----@section DOCS LOAD/SAVE FUNCTIONS
 
 function MnrPlayer:_loadDocs()
     local data = db.getDocs(self.charId)
@@ -109,24 +161,6 @@ function MnrPlayer:_loadDocs()
     end
 end
 
----@section STATUS LOAD/SAVE FUNCTIONS
-
-function MnrPlayer:_loadStatus()
-    local data = db.getStatus(self.charId)
-
-    self.status = {}
-
-    for name, status in pairs(statusTypes) do
-        if not data then
-            self.status[name] = status.default
-        else
-            self.status[name] = data[name] and data[name] or status.default
-        end
-
-        Player(self.source).state:set(name, self.status[name], true)
-    end
-end
-
 function MnrPlayer:_saveStatus()
     if not self.status then
         return
@@ -135,15 +169,23 @@ function MnrPlayer:_saveStatus()
     db.saveStatus(self.charId, self.status)
 end
 
-function MnrPlayer:loadChar(data)
-    self.charId = data.charId
+function MnrPlayer:loadChar(slot)
+    local charId, bio = _loadBio(self.source, self.userId, slot)
+    if not charId or not bio then
+        return false, 'char_error'
+    end
 
-    self.bio = { firstname = data.firstname, lastname = data.lastname, gender = data.gender, origin = data.origin, birthdate = data.birthdate }
+    self.charId = charId
+    self.bio = bio
+    self.money = _loadMoney(self.charId)
+    self.groups = _loadGroups(self.charId)
+    self.docs = _loadDocs(self.charId)
+    self.status = _loadStatus(self.source, self.charId)
 
-    self:_loadMoney()
-    self:_loadGroups()
-    self:_loadDocs()
-    self:_loadStatus()
+    TriggerClientEvent('mnr:client:OnCharacterLoaded', self.source, character)
+    TriggerEvent('mnr:server:OnCharacterLoaded', self.source, character)
+
+    return true
 end
 
 function MnrPlayer:save()

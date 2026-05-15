@@ -142,15 +142,13 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
         return false
     end
 
-    local userId = player.userId
-    local character = db.getCharacterBySlot(userId, slot)
-
-    if not character then
+    local success, err = player:loadChar(slot)
+    if not success then
+        ---@todo print of error
         return false
     end
 
-    player:loadChar(character)
-    playersCache.addCharLink(source, character.charId)
+    playersCache.addCharLink(source, player.charId)
 
     for _, data in ipairs(player.groups or {}) do
         if type(data) == 'table' then
@@ -160,9 +158,6 @@ lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot
             end
         end
     end
-
-    TriggerClientEvent('mnr:client:OnCharacterLoaded', source, character)
-    TriggerEvent('mnr:server:OnCharacterLoaded', source, character)
 
     return true
 end)
