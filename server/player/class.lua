@@ -24,6 +24,7 @@ local function _findByName(groups, name)
         if type(v) == 'table' and v.name == name then return i end
     end
 end
+
 ---@section LOAD FUNCTIONS
 
 local function _loadBio(source, userId, slot)
@@ -107,6 +108,32 @@ local function _loadStatus(source, charId)
     return status
 end
 
+---@section SAVE FUNCTIONS
+
+local function _saveMoney(charId, money)
+    if not money then return end
+
+    db.saveMoney(charId, money)
+end
+
+local function _saveGroups(charId, groups)
+    if not groups then return end
+
+    for i, group in ipairs(groups) do
+        if type(group) == 'table' then
+            db.saveGroup(charId, i, group)
+        else
+            db.deleteGroupBySlot(charId, i)
+        end
+    end
+end
+
+local function _saveStatus(charId, status)
+    if not status then return end
+
+    db.saveStatus(charId, status)
+end
+
 ---@section CLASS
 
 ---@class MnrPlayer
@@ -119,54 +146,6 @@ end
 
 function MnrPlayer:getSource()
     return self.source
-end
-
-function MnrPlayer:_saveMoney()
-    if not self.money then return end
-
-    db.saveMoney(self.charId, self.money)
-end
-
-function MnrPlayer:_saveGroups()
-    if not self.groups then return end
-
-    for i, group in ipairs(self.groups) do
-        if type(group) == 'table' then
-            db.saveGroup(self.charId, i, group)
-        else
-            db.deleteGroupBySlot(self.charId, i)
-        end
-    end
-end
-
-function MnrPlayer:_loadDocs()
-    local data = db.getDocs(self.charId)
-    local now = os.date('%Y-%m-%d %H:%M:%S')
-    self.docs = {}
-
-    for name, document in pairs(data) do
-        if document.expires_at and document.expires_at < now then
-            db.removeDoc(self.charId, name)
-        else
-            self.docs[name] = document
-        end
-    end
-
-    for name, document in pairs(docsTypes) do
-        if not self.docs[name] and document.starter then
-            local expiresAt = document.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + document.duration) or nil
-            db.addDoc(self.charId, name, expiresAt)
-            self.docs[name] = { issued_at = now, expires_at = expiresAt }
-        end
-    end
-end
-
-function MnrPlayer:_saveStatus()
-    if not self.status then
-        return
-    end
-
-    db.saveStatus(self.charId, self.status)
 end
 
 function MnrPlayer:loadChar(slot)
@@ -194,9 +173,9 @@ function MnrPlayer:save()
         return
     end
 
-    self:_saveMoney()
-    self:_saveGroups()
-    self:_saveStatus()
+    _saveMoney(self.charId, self.money)
+    _saveGroups(self.charId, self.groups)
+    _saveStatus(self.charId, self.status)
 end
 
 function MnrPlayer:getMoney(moneyType)
