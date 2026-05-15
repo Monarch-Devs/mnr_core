@@ -132,11 +132,11 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
     return charId, nil
 end)
 
--- Callback to select a character and load his bio
+-- Callback to select a character and load its data
 ---@param source number
 ---@param slot number
 ---@return boolean loaded
-lib.callback.register('mnr_core:server:SelectedCharacter', function(source, slot)
+lib.callback.register('mnr_core:server:SelectCharacter', function(source, slot)
     local player = playersCache.getPlayer(source)
     if not player or type(slot) ~= 'number' then
         return false
