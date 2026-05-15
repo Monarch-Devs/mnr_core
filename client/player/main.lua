@@ -1,1 +1,0 @@
----@deprecated Removed for future implementations
