@@ -108,6 +108,20 @@ local function _loadStatus(source, charId)
     return status
 end
 
+local function _loadFlags(source, charId)
+    local res = db.getFlags(charId)
+
+    if not res then
+        res = { dead = false, jail = false, cuff = false, anim = false }
+    end
+
+    for name, state in pairs(res) do
+        Player(source).state:set(name, state, true)
+    end
+
+    return res
+end
+
 ---@section SAVE FUNCTIONS
 
 local function _saveMoney(charId, money)
@@ -159,6 +173,7 @@ function MnrPlayer:loadChar(slot)
     self.money = _loadMoney(self.charId)
     self.groups = _loadGroups(self.charId)
     self.docs = _loadDocs(self.charId)
+    self.flags = _loadFlags(self.source, self.charId)
     self.status = _loadStatus(self.source, self.charId)
 
     local payload = { charId = self.charId, bio = self.bio, money = self.money, groups = self.groups, docs = self.docs, status = self.status }

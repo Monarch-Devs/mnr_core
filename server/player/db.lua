@@ -63,6 +63,36 @@ function db.createCharacter(userId, slot, character)
     return charId
 end
 
+local GET_FLAGS = 'SELECT `dead`, `jail`, `cuff`, `anim` FROM `char_flags` WHERE `charId` = ? LIMIT 1'
+function db.getFlags(charId)
+    local res = MySQL.single.await(GET_FLAGS, { charId })
+
+    if not res then
+        return false
+    end
+
+    for name, state in pairs(res) do
+        res[name] = state == 1
+    end
+
+    return res
+end
+
+local SAVE_FLAGS = 'INSERT INTO `char_flags` (`charId`, `dead`, `jail`, `cuff`, `anim`) VALUES (:charId, :dead, :jail, :cuff, :anim) ON DUPLICATE KEY UPDATE `dead` = :dead, `jail` = :jail, `cuff` = :cuff, `anim` = :anim'
+function db.saveFlags(charId, flags)
+    if not flags then return end
+
+    local data = {
+        charId = charId,
+        dead = flags.dead and 1 or 0,
+        jail = flags.jail and 1 or 0,
+        cuff = flags.cuff and 1 or 0,
+        anim = flags.anim and 1 or 0,
+    }
+
+    MySQL.prepare.await(SAVE_FLAGS, data)
+end
+
 local GET_STATUS = 'SELECT `health`, `armour`, `hunger`, `thirst`, `stress` FROM `char_status` WHERE `charId` = ? LIMIT 1'
 function db.getStatus(charId)
     return MySQL.single.await(GET_STATUS, { charId })
