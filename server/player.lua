@@ -172,7 +172,7 @@ local function onPlayerDropped(reason)
         return
     end
 
-    player:save()
+    player:saveChar()
 
     for _, data in ipairs(player.groups or {}) do
         if type(data) == 'table' then

@@ -31,47 +31,26 @@
 ---@field setMoney fun(self: self, moneyType: string, amount: number, operator: '+' | '-'): boolean
 ---@field hasPermission fun(self: self, permission: 'bossPerms' | 'fundPerms', grade: number, action: string): boolean
 
----@class PlayerDB
----@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
----@field getUserSlots fun(userId: number): number | false                                                              Used to get user's character max slots
----@field getUserCharacters fun(userId: number, slots: number): table<number, table>                                    Used to get user's character slots and all their characters
----@field getCharacterBySlot fun(userId: number, slot: number): number | false, table | false                           Used to get a character from a precise slot
----@field createCharacter fun(userId: number, slot: number, character: table): number                                   Used to create a new character for a user
----@field getStatus fun(charId: number): table | nil                                                                    Used to get the status of a character
----@field saveStatus fun(charId: number, data: table)                                                                   Used to save the status of a character
----@field getGroups fun(charId: number): table | nil                                                                    Used to get the groups of a character
----@field saveGroup fun(charId: number, slot: number, data: table)                                                      Used to save a group of a character
----@field deleteGroupBySlot fun(charId: number, slot: number)                                                           Used to delete a group using its slot
----@field deleteGroupByName fun(charId: number, name: string)                                                           Used to delete a group of a character
----@field setGrade fun(charId: number, slot: number, grade: number)                                                     Used to set the grade of a character in a group
----@field setDuty fun(charId: number, slot: number, duty: boolean)                                                      Used to set the duty of a character in a group
----@field getMoney fun(charId: number): table | nil                                                                     Used to get the money of a character
----@field saveMoney fun(charId: number, data: table)                                                                    Used to save the money of a character
----@field getDocs fun(charId: number): table                                                                            Used to get the documents of a character
----@field addDoc fun(charId: number, docType: string, expiresAt: string | osdate | nil)                                 Used to add a document to a character
----@field removeDoc fun(charId: number, docType: string)                                                                Used to remove a document from a character
+---@class PlayerBio
+---@field firstname string
+---@field lastname string
+---@field gender 'M' | 'F'
+---@field origin string
+---@field birthdate string
 
 ---@class MnrPlayer
 ---@field __index self
 ---@field userId number                                                                                                 User ID of the player linked to identifiers
----@field charId number
----@field source number
----@field bio { firstname: string, lastname: string, gender: string, origin: string, birthdate: string } | nil
+---@field charId number                                                                                                 ID of the character that player is using
+---@field source number                                                                                                 NetId (source) of the player
+---@field bio PlayerBio | nil
 ---@field money { money: number, bank: number, black_money: number } | nil
 ---@field groups table
 ---@field docs table<string, DocsType>
 ---@field status { health: number, armour: number, hunger: number, thirst: number, stress: number } | nil
 ---@field new fun(userId: number, src: number): self
----@field getSource fun(self: self): number
----@field _loadMoney fun(self: self)
----@field _saveMoney fun(self: self)
----@field _loadGroups fun(self: self)
----@field _saveGroups fun(self: self)
----@field _loadDocs fun(self: self)
----@field _loadStatus fun(self: self)
----@field _saveStatus fun(self: self)
----@field loadChar fun(self: self, slot: number): boolean, string | nil                                                     Loads a character selected by the player in server data
----@field save fun(self: self)
+---@field loadChar fun(self: self, slot: number): boolean, string | nil                                                 Loads a character selected by the player in server data
+---@field saveChar fun(self: self)
 ---@field getMoney fun(self: self, moneyType: string): number
 ---@field setMoney fun(self: self, moneyType: string, amount: number, operator?: '+' | '-'): boolean
 ---@field addGroup fun(self: self, cat: string, name: string, grade: number): boolean, string | nil
@@ -89,6 +68,26 @@
 ---@field hasDoc fun(self: self, docType: string): boolean
 ---@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                         Used to set a specific field status value (operator can be applied to not get the value before the set)
 ---@field degradeStatus fun(self: self)                                                                                     Internal function to loop it simulating status decrease
+
+---@class PlayerDB
+---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
+---@field getUserSlots fun(userId: number): number | false                                                              Used to get user's character max slots
+---@field getUserCharacters fun(userId: number, slots: number): table<number, table>                                    Used to get user's character slots and all their characters
+---@field getCharacterBySlot fun(userId: number, slot: number): number | false, PlayerBio | false                       Used to get a character from a precise slot
+---@field createCharacter fun(userId: number, slot: number, character: table): number                                   Used to create a new character for a user
+---@field getStatus fun(charId: number): table | nil                                                                    Used to get the status of a character
+---@field saveStatus fun(charId: number, data: table)                                                                   Used to save the status of a character
+---@field getGroups fun(charId: number): table | nil                                                                    Used to get the groups of a character
+---@field saveGroup fun(charId: number, slot: number, data: table)                                                      Used to save a group of a character
+---@field deleteGroupBySlot fun(charId: number, slot: number)                                                           Used to delete a group using its slot
+---@field deleteGroupByName fun(charId: number, name: string)                                                           Used to delete a group of a character
+---@field setGrade fun(charId: number, slot: number, grade: number)                                                     Used to set the grade of a character in a group
+---@field setDuty fun(charId: number, slot: number, duty: boolean)                                                      Used to set the duty of a character in a group
+---@field getMoney fun(charId: number): table | nil                                                                     Used to get the money of a character
+---@field saveMoney fun(charId: number, data: table)                                                                    Used to save the money of a character
+---@field getDocs fun(charId: number): table                                                                            Used to get the documents of a character
+---@field addDoc fun(charId: number, docType: string, expiresAt: string | osdate | nil)                                 Used to add a document to a character
+---@field removeDoc fun(charId: number, docType: string)                                                                Used to remove a document from a character
 
 ---@class PlayersCache
 ---@field addQueue fun(loginId: string, userId: number)                                                                 Used to add a player with his loginId to caching queue

@@ -49,11 +49,11 @@ local GET_CHARACTER_BY_SLOT = 'SELECT `charId`, `firstname`, `lastname`, `gender
 function db.getCharacterBySlot(userId, slot)
     local res = MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
 
-    if res then
-        return res.charId, { res.firstname, res.lastname, res.gender, res.origin, res.birthdate }
-    else
+    if not res then
         return false, false
     end
+
+    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate }
 end
 
 local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'

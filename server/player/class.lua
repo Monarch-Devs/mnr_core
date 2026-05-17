@@ -158,10 +158,6 @@ function MnrPlayer.new(userId, src)
     return setmetatable({ userId = userId, source = src }, MnrPlayer)
 end
 
-function MnrPlayer:getSource()
-    return self.source
-end
-
 function MnrPlayer:loadChar(slot)
     local charId, bio = _loadBio(self.source, self.userId, slot)
     if not charId or not bio then
@@ -183,7 +179,7 @@ function MnrPlayer:loadChar(slot)
     return true
 end
 
-function MnrPlayer:save()
+function MnrPlayer:saveChar()
     if not self.charId then
         return
     end
@@ -308,7 +304,7 @@ function MnrPlayer:setDuty(slot, duty)
     db.setDuty(self.charId, slot, duty)
     self.groups[slot].duty = duty
 
-    TriggerClientEvent('mnr:client:DutyChanged', self:getSource(), slot, duty)
+    TriggerClientEvent('mnr:client:DutyChanged', self.source, slot, duty)
 
     return true
 end
