@@ -82,5 +82,5 @@ end)
 exports('SetGroupMoney', function(name, moneyType, operator)
     local group = groupsCache.getGroup(name)
 
-    return group and group:addMoney(moneyType, amount, operator) or false
+    return group and group:setMoney(moneyType, amount, operator) or false
 end)
