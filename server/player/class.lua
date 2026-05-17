@@ -94,13 +94,8 @@ local function _loadStatus(source, charId)
     local res = db.getStatus(charId)
 
     local status = {}
-
     for name, data in pairs(statusTypes) do
-        if not res then
-            data[name] = data.default
-        else
-            data[name] = res[name] and res[name] or data.default
-        end
+        status[name] = (res and res[name]) or data.default
 
         Player(source).state:set(name, status[name], true)
     end
@@ -396,7 +391,7 @@ function MnrPlayer:setStatus(name, value, operator)
     if operator == '+' then
         self.status[name] = lib.math.clamp(self.status[name] + value, statusTypes[name].min, statusTypes[name].max)
     elseif operator == '-' then
-        self.status[name] -= lib.math.clamp(self.status[name] - value, statusTypes[name].min, statusTypes[name].max)
+        self.status[name] = lib.math.clamp(self.status[name] - value, statusTypes[name].min, statusTypes[name].max)
     else
         self.status[name] = lib.math.clamp(value, statusTypes[name].min, statusTypes[name].max)
     end
