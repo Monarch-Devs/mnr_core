@@ -293,6 +293,8 @@ local function getPlayerData(source, field, sub)
     end
 end
 
+---@section PLAYER EXPORTS
+
 exports('GetPlayerData', getPlayerData)
 
 exports('GetPlayerByCharId', function(charId)
@@ -301,4 +303,110 @@ end)
 
 exports('GetPlayerByUserId', function(userId)
     return playersCache.getByUserId(userId)
+end)
+
+---@param src number
+---@param moneyType string
+---@return number
+exports('GetPlayerMoney', function(src, moneyType)
+    local player = playersCache.getPlayer(src)
+    return player and player:getMoney(moneyType) or 0
+end)
+
+---@param src number
+---@param moneyType string
+---@param amount number
+---@param operator? '+' | '-'
+---@return boolean
+exports('SetPlayerMoney', function(src, moneyType, amount, operator)
+    local player = playersCache.getPlayer(src)
+
+    return player and player:setMoney(moneyType, amount, operator) or false
+end)
+
+---@param src number
+---@param cat string
+---@param name string
+---@param grade number
+---@return boolean
+exports('AddPlayerGroup', function(src, cat, name, grade)
+    local player = playersCache.getPlayer(src)
+    if not player then
+        return false
+    end
+
+    return player:addGroup(cat, name, grade)
+end)
+
+---@param src number
+---@param slot number
+---@return boolean
+exports('RemovePlayerGroup', function(src, slot)
+    local player = playersCache.getPlayer(src)
+    if not player then
+        return false
+    end
+
+    return player:removeGroup(slot)
+end)
+
+---@param src number
+---@param slot number
+---@param grade number
+---@return boolean
+exports('SetPlayerGrade', function(src, slot, grade)
+    local player = playersCache.getPlayer(src)
+    if not player then
+        return false
+    end
+
+    return player:setGrade(slot, grade)
+end)
+
+---@param src number
+---@param slot number
+---@param duty boolean
+---@return boolean
+exports('SetPlayerDuty', function(src, slot, duty)
+    local player = playersCache.getPlayer(src)
+    if not player then
+        return false
+    end
+
+    return player:setDuty(slot, duty)
+end)
+
+---@param src number
+---@param name string
+---@param value number
+---@param operator? '+' | '-'
+---@return boolean
+exports('SetPlayerStatus', function(src, name, value, operator)
+    local player = playersCache.getPlayer(src)
+
+    return player and player:setStatus(name, value, operator) or false
+end)
+
+---@param src number
+---@param name string
+---@return number | false
+exports('GetPlayerStatus', function(src, name)
+    local player = playersCache.getPlayer(src)
+    if not player or not player.status then
+        return false
+    end
+
+    return player.status[name]
+end)
+
+---@return table<number, MnrPlayer>
+exports('GetOnlinePlayers', function()
+    return playersCache.getAllPlayers()
+end)
+
+---@param src number
+---@return boolean
+exports('IsPlayerLoaded', function(src)
+    local player = playersCache.getPlayer(src)
+    return player ~= nil and player.charId ~= nil
 end)
