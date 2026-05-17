@@ -154,7 +154,7 @@ lib.callback.register('mnr_core:server:SelectCharacter', function(source, slot)
         if type(data) == 'table' then
             local group = groupsCache.getGroup(data.name)
             if group then
-                group.online[character.charId] = source
+                group.online[player.charId] = source
             end
         end
     end
