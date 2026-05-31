@@ -184,6 +184,8 @@ local function onPlayerDropped(reason)
     end
 
     playersCache.removePlayer(src)
+
+    TriggerEvent('mnr:server:OnPlayerDropped', src)
 end
 
 AddEventHandler('playerDropped', onPlayerDropped)

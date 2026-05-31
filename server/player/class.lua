@@ -226,6 +226,9 @@ function MnrPlayer:addGroup(cat, name, grade)
     db.saveGroup(self.charId, slot, { cat = cat, name = name, grade = grade, duty = false })
     self.groups[slot] = { cat = cat, name = name, grade = grade, duty = false }
 
+    TriggerEvent('mnr:server:OnGroupChanged', self.source, name, grade)
+    TriggerClientEvent('mnr:client:OnGroupChanged', self.source, name, grade)
+
     return true
 end
 
@@ -270,8 +273,12 @@ function MnrPlayer:removeGroup(slot)
         return false, 'slot_empty'
     end
 
-    db.deleteGroupBySlot(self.charId, slot)
+    local removedGroup = self.groups[slot]
     self.groups[slot] = false
+    db.deleteGroupBySlot(self.charId, slot)
+
+    TriggerEvent('mnr:server:OnGroupChanged', self.source, removedGroup.name, nil)
+    TriggerClientEvent('mnr:client:OnGroupChanged', self.source, removedGroup.name, nil)
 
     return true
 end
@@ -288,6 +295,9 @@ function MnrPlayer:setGrade(slot, grade)
     db.setGrade(self.charId, slot, grade)
     self.groups[slot].grade = grade
 
+    TriggerEvent('mnr:server:OnGroupChanged', self.source, self.groups[slot].name, grade)
+    TriggerClientEvent('mnr:client:OnGroupChanged', self.source, self.groups[slot].name, grade)
+
     return true
 end
 
@@ -299,6 +309,7 @@ function MnrPlayer:setDuty(slot, duty)
     db.setDuty(self.charId, slot, duty)
     self.groups[slot].duty = duty
 
+    TriggerEvent('mnr:server:DutyChanged', self.source, slot, duty)
     TriggerClientEvent('mnr:client:DutyChanged', self.source, slot, duty)
 
     return true
