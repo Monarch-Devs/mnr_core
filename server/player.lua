@@ -124,7 +124,7 @@ lib.callback.register('mnr_core:server:CreateCharacter', function(source, charac
         return false, 'invalid_data'
     end
 
-    local charId = db.createCharacter(userId, slot, data)
+    local charId = db.addCharacter(userId, slot, data)
     if not charId then
         return false, 'creation_failed'
     end
@@ -267,11 +267,7 @@ end)
 ---@todo Make this function more modular integrating internal functions in class and call everything here
 lib.cron.new(('*/%d * * * *'):format(config.interval), function()
     for _, player in pairs(playersCache.getAllPlayers()) do
-        if not player.charId then goto skip_degrade end
-
         player:degradeStatus()
-
-        ::skip_degrade::
     end
 end)
 

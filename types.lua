@@ -13,8 +13,8 @@
 ---@field discord string
 
 ---@class DocsType
----@field issued_at string | osdate
----@field expires_at string | osdate | nil
+---@field issued integer
+---@field expiry integer | nil
 
 ---@class MnrGroup
 ---@field name string
@@ -63,7 +63,7 @@
 ---@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean Used to check if player haves group permissions
 ---@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
 ---@field setGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number, action: 'deposit' | 'withdraw'): boolean
----@field addDoc fun(self: self, docType: string, expiresAt: string): boolean
+---@field addDoc fun(self: self, docType: string, expiry: integer): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil
 ---@field hasDoc fun(self: self, docType: string): boolean
 ---@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                         Used to set a specific field status value (operator can be applied to not get the value before the set)
@@ -73,8 +73,8 @@
 ---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
 ---@field getUserSlots fun(userId: number): number | false                                                              Used to get user's character max slots
 ---@field getUserCharacters fun(userId: number, slots: number): table<number, table>                                    Used to get user's character slots and all their characters
----@field getCharacterBySlot fun(userId: number, slot: number): number | false, PlayerBio | false                       Used to get a character from a precise slot
----@field createCharacter fun(userId: number, slot: number, character: table): number                                   Used to create a new character for a user
+---@field getCharacter fun(userId: number, slot: number): number | false, PlayerBio | false                             Used to get a character from a precise slot
+---@field addCharacter fun(userId: number, slot: number, char: table): number                                           Used to create a new character for a user
 ---@field getStatus fun(charId: number): table | nil                                                                    Used to get the status of a character
 ---@field saveStatus fun(charId: number, data: table)                                                                   Used to save the status of a character
 ---@field getGroups fun(charId: number): table | nil                                                                    Used to get the groups of a character
@@ -86,7 +86,7 @@
 ---@field getMoney fun(charId: number): table | nil                                                                     Used to get the money of a character
 ---@field saveMoney fun(charId: number, data: table)                                                                    Used to save the money of a character
 ---@field getDocs fun(charId: number): table                                                                            Used to get the documents of a character
----@field addDoc fun(charId: number, docType: string, expiresAt: string | osdate | nil)                                 Used to add a document to a character
+---@field addDoc fun(charId: number, docType: string, issued: integer, expiry: integer | nil)                           Used to add a document to a character
 ---@field removeDoc fun(charId: number, docType: string)                                                                Used to remove a document from a character
 
 ---@class PlayersCache

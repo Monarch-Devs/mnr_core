@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
 CREATE TABLE IF NOT EXISTS `char_docs` (
     `charId` INT UNSIGNED NOT NULL,
     `type` VARCHAR(64) NOT NULL,
-    `issued_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `expires_at` TIMESTAMP NULL DEFAULT NULL,
+    `issued` DATE NOT NULL,
+    `expiry` DATE NULL DEFAULT NULL,
     PRIMARY KEY (`charId`, `type`),
     FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

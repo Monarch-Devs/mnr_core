@@ -39,26 +39,26 @@ function db.getUserCharacters(userId, slots)
     end
 
     for _, row in ipairs(rows) do
-        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = row.birthdate }
+        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = row.birthdate / 1000 }
     end
 
     return characters
 end
 
-local GET_CHARACTER_BY_SLOT = 'SELECT `charId`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? AND `slot` = ? LIMIT 1'
-function db.getCharacterBySlot(userId, slot)
-    local res = MySQL.single.await(GET_CHARACTER_BY_SLOT, { userId, slot })
+local GET_CHARACTER = 'SELECT `charId`, `firstname`, `lastname`, `gender`, `origin`, `birthdate` FROM `characters` WHERE `userId` = ? AND `slot` = ? LIMIT 1'
+function db.getCharacter(userId, slot)
+    local res = MySQL.single.await(GET_CHARACTER, { userId, slot })
 
     if not res then
         return false, false
     end
 
-    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate }
+    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate / 1000 }
 end
 
-local CREATE_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
-function db.createCharacter(userId, slot, character)
-    local charId = MySQL.prepare.await(CREATE_CHARACTER, { userId, slot, character.firstname, character.lastname, character.gender, character.origin, character.birthdate })
+local ADD_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+function db.addCharacter(userId, slot, char)
+    local charId = MySQL.prepare.await(ADD_CHARACTER, { userId, slot, char.firstname, char.lastname, char.gender, char.origin, os.date('%Y-%m-%d', char.birthdate) })
 
     return charId
 end
@@ -143,20 +143,20 @@ function db.saveMoney(charId, data)
     MySQL.prepare.await(SAVE_MONEY, { charId, data.money, data.bank, data.black_money })
 end
 
-local GET_DOCS = 'SELECT `type`, `issued_at`, `expires_at` FROM `char_docs` WHERE `charId` = ?'
+local GET_DOCS = 'SELECT `type`, `issued`, `expiry` FROM `char_docs` WHERE `charId` = ?'
 function db.getDocs(charId)
     local rows = MySQL.query.await(GET_DOCS, { charId }) or {}
     local result = {}
     for _, row in ipairs(rows) do
-        result[row.type] = { issued_at = row.issued_at, expires_at = row.expires_at or nil }
+        result[row.type] = { issued = row.issued / 1000, expiry = row.expiry and (row.expiry / 1000) or nil }
     end
 
     return result
 end
 
-local SAVE_DOC = 'INSERT INTO `char_docs` (`charId`, `type`, `expires_at`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `expires_at` = VALUES(`expires_at`)'
-function db.addDoc(charId, docType, expiresAt)
-    MySQL.prepare.await(SAVE_DOC, { charId, docType, expiresAt or nil })
+local SAVE_DOC = 'INSERT INTO `char_docs` (`charId`, `type`, `issued`, `expiry`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `expiry` = VALUES(`expiry`)'
+function db.addDoc(charId, docType, issued, expiry)
+    MySQL.prepare.await(SAVE_DOC, { charId, docType, os.date('%Y-%m-%d', issued), expiry and os.date('%Y-%m-%d', expiry) or nil })
 end
 
 local DELETE_DOC = 'DELETE FROM `char_docs` WHERE `charId` = ? AND `type` = ?'

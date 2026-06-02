@@ -28,7 +28,7 @@ end
 ---@section LOAD FUNCTIONS
 
 local function _loadBio(source, userId, slot)
-    local charId, bio = db.getCharacterBySlot(userId, slot)
+    local charId, bio = db.getCharacter(userId, slot)
 
     if not charId then
         return false
@@ -68,22 +68,20 @@ end
 
 local function _loadDocs(charId)
     local data = db.getDocs(charId)
-    local now = os.date('%Y-%m-%d %H:%M:%S')
 
     local docs = {}
-    for name, document in pairs(data) do
-        if document.expires_at and document.expires_at < now then
-            db.removeDoc(charId, name)
-        else
-            docs[name] = document
-        end
-    end
-
     for name, document in pairs(docsTypes) do
-        if not docs[name] and document.starter then
-            local expiresAt = document.duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + document.duration) or nil
-            db.addDoc(charId, name, expiresAt)
-            docs[name] = { issued_at = now, expires_at = expiresAt }
+        if data[name] then
+            if data[name].expiry and data[name].expiry < os.time() then
+                db.removeDoc(charId, name)
+            else
+                docs[name] = data[name]
+            end
+        elseif document.starter then
+            local issued = os.time()
+            local expiry = document.duration and (os.time() + document.duration) or nil
+            db.addDoc(charId, name, issued, expiry)
+            docs[name] = { issued = issued, expiry = expiry }
         end
     end
 
@@ -361,9 +359,12 @@ end
 
 ---@section DOCS METHODS
 
-function MnrPlayer:addDoc(docType, expiresAt)
-    db.addDoc(self.charId, docType, expiresAt)
-    self.docs[docType] = { issued_at = os.date('%Y-%m-%d %H:%M:%S'), expires_at = expiresAt }
+function MnrPlayer:addDoc(docType, expiry)
+    local issued = os.time()
+
+    db.addDoc(self.charId, docType, issued, expiry)
+    self.docs[docType] = { issued = issued, expiry = expiry }
+
     return true
 end
 
@@ -384,7 +385,7 @@ function MnrPlayer:hasDoc(docType)
     end
 
     local doc = self.docs[docType]
-    if doc.expires_at and doc.expires_at < os.date('%Y-%m-%d %H:%M:%S') then
+    if doc.expiry and doc.expiry < os.time() then
         db.removeDoc(self.charId, docType)
         self.docs[docType] = nil
 
@@ -411,6 +412,8 @@ function MnrPlayer:setStatus(name, value, operator)
 end
 
 function MnrPlayer:degradeStatus()
+    if not self.charId then return end
+
     for name, status in pairs(statusTypes) do
         if not status.degrade then goto skip_status end
 
