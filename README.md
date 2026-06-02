@@ -22,6 +22,24 @@ I'm primarily a financially poor person, but ethically I can't force people to g
 - A community that I hope will grow and be free from profit constraints
 - **But above all** honesty and no twisted games. I don't want to wear a mask or recommend creators whose products aren't worth using in exchange of money. I want to do all this to use fame in a clean way to benefit those who work hard in this world and are often overlooked, for the safety of this community and of the users who spend money every day to be able to enjoy the game with friends.
 
+### Date Format System
+For the Monarch Framework, we have adopted a date management convention that promotes formats optimized for calculations and comparisons within the code. This approach provides several advantages:
+- Improved performance for backend calculations and comparisons
+- Easy conversion into multiple user-friendly date formats
+- Reduced overhead when handling dates (avoiding repeated string parsing and allowing direct use of UNIX timestamps)
+
+```mermaid
+flowchart LR
+    DB[Database ISO date yyyy-mm-dd]
+    LUA[Lua unix timestamp seconds]
+    NUI[JS unix timestamp ms]
+
+    DB -->|convert to timestamp| LUA
+    LUA -->|multiply 1000| NUI
+    NUI -->|divide 1000| LUA
+    LUA -->|format date string| DB
+```
+
 ## Links
 - [Discord](https://discord.gg/WKtk65yBC6)
 - [Docs](https://monarch-devs.com)
