@@ -12,6 +12,7 @@ files {}
 
 shared_scripts {
     '@ox_lib/init.lua',
+    '@mnr_api/api.lua',
 }
 
 client_scripts {

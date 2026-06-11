@@ -1,4 +1,4 @@
-local sanitizer = require 'config.sanitizer'
+local sanitizer = mnr.import('config/sanitizer', 'lua', true)
 
 local utils = {}
 

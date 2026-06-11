@@ -1,14 +1,14 @@
 local adaptiveCard = GetConvarBool('mnr:adaptiveCard', true) and GetResourceState('mnr_adaptivecard') == 'started'
 local maxCharacters = GetConvarInt('mnr:maxCharacters', 2)
 
-local config = require 'config.server'
+local config = mnr.import('config/server', 'lua', true)
 
-local groupsCache = require 'server.groups.cache'
+local groupsCache = mnr.import('server/groups/cache', 'lua', true)
 
-local playersCache = require 'server.player.cache'
-local utils = require 'server.player.utils'
-local db = require 'server.player.db'
-local MnrPlayer = require 'server.player.class'
+local playersCache = mnr.import('server/player/cache', 'lua', true)
+local utils = mnr.import('server/player/utils', 'lua', true)
+local db = mnr.import('server/player/db', 'lua', true)
+local MnrPlayer = mnr.import('server/player/class', 'lua', true)
 
 GlobalState:set('MaxClients', GetConvarInt('sv_maxclients', 48), true)
 GlobalState:set('OnlinePlayers', 0, true)

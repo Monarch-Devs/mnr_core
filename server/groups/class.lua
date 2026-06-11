@@ -1,5 +1,5 @@
-local moneyTypes = require 'config.moneyTypes'
-local db = require 'server.groups.db'
+local moneyTypes = mnr.import('config/moneyTypes', 'lua', true)
+local db = mnr.import('server/groups/db', 'lua', true)
 
 ---@param name string
 ---@return table

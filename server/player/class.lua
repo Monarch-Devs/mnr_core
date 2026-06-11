@@ -1,10 +1,10 @@
-local db = require 'server.player.db'
+local db = mnr.import('server/player/db', 'lua', true)
 
-local groupsCache = require 'server.groups.cache'
+local groupsCache = mnr.import('server/groups/cache', 'lua', true)
 
-local moneyTypes = require 'config.moneyTypes'
-local docsTypes = require 'config.docsTypes'
-local statusTypes = require 'config.statusTypes'
+local moneyTypes = mnr.import('config/moneyTypes', 'lua', true)
+local docsTypes = mnr.import('config/docsTypes', 'lua', true)
+local statusTypes = mnr.import('config/statusTypes', 'lua', true)
 
 local maxGroups = GetConvarInt('mnr:maxGroups', 2)
 

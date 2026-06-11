@@ -1,7 +1,7 @@
-local groups = require 'config.groups'
-local groupsCache = require 'server.groups.cache'
-local MnrGroup = require 'server.groups.class'
-local db = require 'server.groups.db'
+local groups = mnr.import('config/groups', 'lua', true)
+local groupsCache = mnr.import('server/groups/cache', 'lua', true)
+local MnrGroup = mnr.import('server/groups/class', 'lua', true)
+local db = mnr.import('server/groups/db', 'lua', true)
 
 local function dbGroupsCleanup()
     local dbGroups = db.getGroupsNames()
