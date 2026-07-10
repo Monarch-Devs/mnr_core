@@ -10,6 +10,30 @@ CREATE TABLE IF NOT EXISTS `users` (
     PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `groups` (
+    `name` VARCHAR(64) NOT NULL,
+    `label` VARCHAR(64) NOT NULL,
+    `cat` VARCHAR(32) NOT NULL,
+    PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `group_grades` (
+    `group_name` VARCHAR(64)  NOT NULL,
+    `grade` TINYINT UNSIGNED NOT NULL,
+    `label` VARCHAR(64)  NOT NULL,
+    PRIMARY KEY (`group_name`, `grade`),
+    FOREIGN KEY (`group_name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `group_funds` (
+    `name` VARCHAR(64) NOT NULL,
+    `money` INT UNSIGNED NOT NULL DEFAULT 0,
+    `bank` INT UNSIGNED NOT NULL DEFAULT 0,
+    `black_money` INT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (`name`),
+    FOREIGN KEY (`name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `char_slots` (
     `userId` INT UNSIGNED NOT NULL,
     `slots` TINYINT UNSIGNED NOT NULL DEFAULT 2,
@@ -91,28 +115,4 @@ CREATE TABLE IF NOT EXISTS `char_position` (
     `w` FLOAT NOT NULL,
     PRIMARY KEY (`charId`),
     FOREIGN KEY (`charId`) REFERENCES `characters`(`charId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `groups` (
-    `name` VARCHAR(64) NOT NULL,
-    `label` VARCHAR(64) NOT NULL,
-    `cat` VARCHAR(32) NOT NULL,
-    PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `group_grades` (
-    `group_name` VARCHAR(64)  NOT NULL,
-    `grade` TINYINT UNSIGNED NOT NULL,
-    `label` VARCHAR(64)  NOT NULL,
-    PRIMARY KEY (`group_name`, `grade`),
-    FOREIGN KEY (`group_name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `group_funds` (
-    `name` VARCHAR(64) NOT NULL,
-    `money` INT UNSIGNED NOT NULL DEFAULT 0,
-    `bank` INT UNSIGNED NOT NULL DEFAULT 0,
-    `black_money` INT UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (`name`),
-    FOREIGN KEY (`name`) REFERENCES `groups`(`name`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
