@@ -4,7 +4,7 @@ local GET_GROUPS_NAMES = 'SELECT `name` FROM `groups`'
 -- Database function to get a groups map for cleanup
 ---@return table<string, true> | false
 function db.getGroupsNames()
-    local result = MySQL.query.await(GET_GROUPS_NAMES)
+    local result = mnr_sql.query(GET_GROUPS_NAMES)
 
     if not result then
         return false
@@ -24,14 +24,14 @@ local ADD_GROUP = 'INSERT INTO `groups` (`name`, `label`, `cat`) VALUES (?, ?, ?
 ---@param label string
 ---@param cat string
 function db.addGroup(name, label, cat)
-    MySQL.prepare.await(ADD_GROUP, { name, label, cat })
+    mnr_sql.prepare(ADD_GROUP, { name, label, cat })
 end
 
 local DELETE_GROUP = 'DELETE FROM `groups` WHERE `name` = ?'
 -- Database function to delete an unused group
 ---@param name string
 function db.deleteGroup(name)
-    MySQL.prepare.await(DELETE_GROUP, { name })
+    mnr_sql.prepare(DELETE_GROUP, { name })
 end
 
 local GET_GROUP_GRADES = 'SELECT `grade` FROM `group_grades` WHERE `group_name` = ?'
@@ -39,7 +39,7 @@ local GET_GROUP_GRADES = 'SELECT `grade` FROM `group_grades` WHERE `group_name` 
 ---@param name string
 ---@return table<number, true> | false
 function db.getGroupGrades(name)
-    local result = MySQL.query.await(GET_GROUP_GRADES, { name })
+    local result = mnr_sql.query(GET_GROUP_GRADES, { name })
     if not result then
         return false
     end
@@ -63,7 +63,7 @@ function db.addGrades(name, grades)
         queries[#queries + 1] = { query = ADD_GRADES, values = { name, level, grade.label } }
     end
 
-    MySQL.transaction.await(queries)
+    mnr_sql.transaction(queries)
 end
 
 local DELETE_GRADE = 'DELETE FROM `group_grades` WHERE `group_name` = ? AND `grade` = ?'
@@ -71,7 +71,7 @@ local DELETE_GRADE = 'DELETE FROM `group_grades` WHERE `group_name` = ? AND `gra
 ---@param name string
 ---@param grade number
 function db.deleteGrade(name, grade)
-    MySQL.prepare.await(DELETE_GRADE, { name, grade })
+    mnr_sql.prepare(DELETE_GRADE, { name, grade })
 end
 
 local GET_CHAR_GROUPS = 'SELECT `charId`, `grade` FROM `char_groups` WHERE `name` = ?'
@@ -79,7 +79,7 @@ local GET_CHAR_GROUPS = 'SELECT `charId`, `grade` FROM `char_groups` WHERE `name
 ---@param name string
 ---@return { charId: number, grade: number }[] | nil
 function db.getCharGroups(name)
-    return MySQL.query.await(GET_CHAR_GROUPS, { name })
+    return mnr_sql.query(GET_CHAR_GROUPS, { name })
 end
 
 local UPDATE_CHAR_GROUP_GRADE = 'UPDATE `char_groups` SET `grade` = ? WHERE `charId` = ? AND `name` = ?'
@@ -88,21 +88,21 @@ local UPDATE_CHAR_GROUP_GRADE = 'UPDATE `char_groups` SET `grade` = ? WHERE `cha
 ---@param name string
 ---@param grade number
 function db.updateCharGroupGrade(charId, name, grade)
-    MySQL.prepare.await(UPDATE_CHAR_GROUP_GRADE, { grade, charId, name })
+    mnr_sql.prepare(UPDATE_CHAR_GROUP_GRADE, { grade, charId, name })
 end
 
 local GET_FUNDS = 'SELECT `money`, `bank`, `black_money` FROM `group_funds` WHERE `name` = ? LIMIT 1'
 ---@param name string
 ---@return { money: number, bank: number, black_money: number } | nil
 function db.getFunds(name)
-    return MySQL.single.await(GET_FUNDS, { name })
+    return mnr_sql.single(GET_FUNDS, { name })
 end
 
 local SAVE_FUNDS = 'INSERT INTO `group_funds` (`name`, `money`, `bank`, `black_money`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `money` = VALUES(`money`), `bank` = VALUES(`bank`), `black_money` = VALUES(`black_money`)'
 ---@param name string
 ---@param data { money: number, bank: number, black_money: number }
 function db.saveFunds(name, data)
-    MySQL.prepare.await(SAVE_FUNDS, { name, data.money, data.bank, data.black_money })
+    mnr_sql.prepare(SAVE_FUNDS, { name, data.money, data.bank, data.black_money })
 end
 
 return db
