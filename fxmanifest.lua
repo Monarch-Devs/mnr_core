@@ -5,7 +5,7 @@ lua54 'yes'
 name 'mnr_core'
 description 'Monarch Devs Framework'
 author 'IlMelons'
-version '0.0.1'
+version '1.0.0'
 repository 'https://github.com/Monarch-Devs/mnr_core'
 
 files {}
