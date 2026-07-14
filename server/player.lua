@@ -200,7 +200,7 @@ mnr.rpc.handle('mnr_core:server:HirePlayer', function(source, targetCharId, grou
         return false, 'no_caller'
     end
 
-    if not caller:hasGroupPermission(groupName, 'bossPerms', 'hire') then
+    if not caller:hasGroupPermission(groupName, 'boss', 'hire') then
         return false, 'no_permission'
     end
 
@@ -227,7 +227,7 @@ mnr.rpc.handle('mnr_core:server:PromotePlayer', function(source, targetCharId, g
         return false, 'no_caller'
     end
 
-    if not caller:hasGroupPermission(groupName, 'bossPerms', 'promote') then
+    if not caller:hasGroupPermission(groupName, 'boss', 'promote') then
         return false, 'no_permission'
     end
 
@@ -251,7 +251,7 @@ mnr.rpc.handle('mnr_core:server:FirePlayer', function(source, targetCharId, grou
     local caller = playersCache.getPlayer(source)
     if not caller then return false, 'no_caller' end
 
-    if not caller:hasGroupPermission(groupName, 'bossPerms', 'fire') then
+    if not caller:hasGroupPermission(groupName, 'boss', 'fire') then
         return false, 'no_permission'
     end
 

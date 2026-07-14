@@ -198,17 +198,6 @@ function MnrPlayer:getGroup(name)
     return self.groups[slot], slot
 end
 
-function MnrPlayer:getGroupsByCategory(cat)
-    local result = {}
-    for slot, group in ipairs(self.groups) do
-        if type(group) == 'table' and group.cat == cat then
-            result[#result + 1] = { slot = slot, group = group }
-        end
-    end
-
-    return result
-end
-
 function MnrPlayer:hasDoc(docType)
     if not self.docs or not self.docs[docType] then
         return false
@@ -356,7 +345,7 @@ function MnrPlayer:getGroupMoney(groupName, moneyType)
 end
 
 function MnrPlayer:setGroupMoney(groupName, moneyType, amount, action)
-    if not self:hasGroupPermission(groupName, 'fundPerms', action) then
+    if not self:hasGroupPermission(groupName, 'fund', action) then
         return false
     end
 

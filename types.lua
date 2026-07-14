@@ -22,14 +22,14 @@
 ---@field duty table
 ---@field online table
 ---@field offline table
----@field bossPerms table<number, table<string, boolean>>
----@field fundPerms table<number, table<string, boolean>>
+---@field boss table<number, table<string, boolean>>
+---@field fund table<number, table<string, boolean>>
 ---@field money { money: number, bank: number, black_money: number } | nil
 ---@field new fun(name: string, cat: string, perms: table): self
 ---@field saveMoney fun(self: self)
 ---@field getMoney fun(self: self, moneyType: string): number
 ---@field setMoney fun(self: self, moneyType: string, amount: number, operator: '+' | '-'): boolean
----@field hasPermission fun(self: self, permission: 'bossPerms' | 'fundPerms', grade: number, action: string): boolean
+---@field hasPermission fun(self: self, permission: 'boss' | 'fund', grade: number, action: string): boolean
 
 ---@class PlayerBio
 ---@field firstname string
@@ -56,11 +56,10 @@
 ---@field addGroup fun(self: self, cat: string, name: string, grade: number): boolean, string | nil
 ---@field setGroup fun(self: self, slot: number, cat: string, name: string, grade: number): boolean, string | nil
 ---@field getGroup fun(self: self, name: string): table | false, number | nil
----@field getGroupsByCategory fun(self: self, cat: string): table
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
 ---@field setGrade fun(self: self, slot: number, grade: number): boolean, string | nil
 ---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
----@field hasGroupPermission fun(self: self, name: string, permissions: 'bossPerms' | 'fundPerms', action: string): boolean Used to check if player haves group permissions
+---@field hasGroupPermission fun(self: self, name: string, permissions: 'boss' | 'fund', action: string): boolean Used to check if player haves group permissions
 ---@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
 ---@field setGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number, action: 'deposit' | 'withdraw'): boolean
 ---@field addDoc fun(self: self, docType: string, expiry: integer): boolean

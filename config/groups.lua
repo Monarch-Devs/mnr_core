@@ -27,11 +27,11 @@ return {
             [14] = { label = 'Assistant Chief' },
             [15] = { label = 'Chief' },
         },
-        bossPerms = {
+        boss = {
             [14] = { promote = true, hire = true },
             [15] = { promote = true, hire = true, fire = true },
         },
-        fundPerms = {
+        fund = {
             [14] = { view = true, deposit = true },
             [15] = { view = true, deposit = true, withdraw = true },
         },
@@ -56,11 +56,11 @@ return {
             [14] = { label = 'Head of Department' },
             [15] = { label = 'Medical Director' },
         },
-        bossPerms = {
+        boss = {
             [14] = { promote = true, hire = true },
             [15] = { promote = true, hire = true, fire = true },
         },
-        fundPerms = {
+        fund = {
             [14] = { view = true, deposit = true },
             [15] = { view = true, deposit = true, withdraw = true },
         },
@@ -75,11 +75,11 @@ return {
             [4] = { label = 'Underboss' },
             [5] = { label = 'Boss' },
         },
-        bossPerms = {
+        boss = {
             [4] = { promote = true, hire = true },
             [5] = { promote = true, hire = true, fire = true },
         },
-        fundPerms = {
+        fund = {
             [4] = { view = true, deposit = true },
             [5] = { view = true, deposit = true, withdraw = true },
         },

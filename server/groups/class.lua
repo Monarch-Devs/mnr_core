@@ -27,8 +27,8 @@ function MnrGroup.new(name, cat, perms)
         duty = {},
         online = {},
         offline = {},
-        bossPerms = perms.bossPerms or {},
-        fundPerms = perms.fundPerms or {},
+        boss = perms.boss or {},
+        fund = perms.fund or {},
         money = loadGroupMoney(name),
     }, MnrGroup)
 end

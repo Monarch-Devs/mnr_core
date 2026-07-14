@@ -57,7 +57,7 @@ local function dbGroupsCleanup()
             ::skip_char_grade::
         end
 
-        groupsCache.addGroup(name, MnrGroup.new(name, group.cat, { bossPerms = group.bossPerms, fundPerms = group.fundPerms }))
+        groupsCache.addGroup(name, MnrGroup.new(name, group.cat, { boss = group.boss, fund = group.fund }))
     end
 
     print('[mnr_core] Groups cleanup completed')
