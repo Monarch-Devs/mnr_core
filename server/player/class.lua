@@ -401,11 +401,11 @@ function MnrPlayer:setStatus(name, value, operator)
     end
 
     if operator == '+' then
-        self.status[name] = lib.math.clamp(self.status[name] + value, statusTypes[name].min, statusTypes[name].max)
+        self.status[name] = mnr.num.clamp(self.status[name] + value, statusTypes[name].min, statusTypes[name].max)
     elseif operator == '-' then
-        self.status[name] = lib.math.clamp(self.status[name] - value, statusTypes[name].min, statusTypes[name].max)
+        self.status[name] = mnr.num.clamp(self.status[name] - value, statusTypes[name].min, statusTypes[name].max)
     else
-        self.status[name] = lib.math.clamp(value, statusTypes[name].min, statusTypes[name].max)
+        self.status[name] = mnr.num.clamp(value, statusTypes[name].min, statusTypes[name].max)
     end
 
     Player(self.source).state:set(name, self.status[name], true)
@@ -417,7 +417,7 @@ function MnrPlayer:degradeStatus()
     for name, status in pairs(statusTypes) do
         if not status.degrade then goto skip_status end
 
-        self.status[name] = lib.math.clamp(self.status[name] - status.degrade, status.min, status.max)
+        self.status[name] = mnr.num.clamp(self.status[name] - status.degrade, status.min, status.max)
         Player(self.source).state:set(name, self.status[name], true)
 
         ::skip_status::

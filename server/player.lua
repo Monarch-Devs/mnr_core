@@ -83,7 +83,7 @@ AddEventHandler('playerJoining', onPlayerJoining)
 -- Callback to get the characters and slots for a user
 ---@param source number
 ---@return number | boolean, table | boolean
-lib.callback.register('mnr_core:server:GetCharacters', function(source)
+mnr.rpc.handle('mnr_core:server:GetCharacters', function(source)
     local player = playersCache.getPlayer(source)
     if not player then
         return false, false
@@ -101,7 +101,7 @@ end)
 ---@param character table
 ---@param slot number
 ---@return number | false, string | nil
-lib.callback.register('mnr_core:server:CreateCharacter', function(source, character, slot)
+mnr.rpc.handle('mnr_core:server:CreateCharacter', function(source, character, slot)
     local player = playersCache.getPlayer(source)
     if not player then
         return false, 'no_player'
@@ -136,7 +136,7 @@ end)
 ---@param source number
 ---@param slot number
 ---@return boolean loaded
-lib.callback.register('mnr_core:server:SelectCharacter', function(source, slot)
+mnr.rpc.handle('mnr_core:server:SelectCharacter', function(source, slot)
     local player = playersCache.getPlayer(source)
     if not player or type(slot) ~= 'number' then
         return false
@@ -194,7 +194,7 @@ AddEventHandler('playerDropped', onPlayerDropped)
 ---@param targetCharId number
 ---@param groupName string
 ---@param grade number
-lib.callback.register('mnr_core:server:HirePlayer', function(source, targetCharId, groupName, grade)
+mnr.rpc.handle('mnr_core:server:HirePlayer', function(source, targetCharId, groupName, grade)
     local caller = playersCache.getPlayer(source)
     if not caller then
         return false, 'no_caller'
@@ -221,7 +221,7 @@ end)
 ---@param targetCharId number
 ---@param groupName string
 ---@param grade number
-lib.callback.register('mnr_core:server:PromotePlayer', function(source, targetCharId, groupName, grade)
+mnr.rpc.handle('mnr_core:server:PromotePlayer', function(source, targetCharId, groupName, grade)
     local caller = playersCache.getPlayer(source)
     if not caller then
         return false, 'no_caller'
@@ -247,7 +247,7 @@ end)
 ---@param source number
 ---@param targetCharId number
 ---@param groupName string
-lib.callback.register('mnr_core:server:FirePlayer', function(source, targetCharId, groupName)
+mnr.rpc.handle('mnr_core:server:FirePlayer', function(source, targetCharId, groupName)
     local caller = playersCache.getPlayer(source)
     if not caller then return false, 'no_caller' end
 
@@ -265,7 +265,7 @@ lib.callback.register('mnr_core:server:FirePlayer', function(source, targetCharI
 end)
 
 ---@todo Make this function more modular integrating internal functions in class and call everything here
-lib.cron.new(('*/%d * * * *'):format(config.interval), function()
+mnr.cronjob(('*/%d * * * *'):format(config.interval), function()
     for _, player in pairs(playersCache.getAllPlayers()) do
         player:degradeStatus()
     end

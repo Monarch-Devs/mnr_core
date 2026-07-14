@@ -11,7 +11,6 @@ repository 'https://github.com/Monarch-Devs/mnr_core'
 files {}
 
 shared_scripts {
-    '@ox_lib/init.lua',
     '@mnr_api/api.lua',
 }
 
