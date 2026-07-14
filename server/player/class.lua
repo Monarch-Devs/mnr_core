@@ -182,9 +182,50 @@ function MnrPlayer:saveChar()
     _saveStatus(self.charId, self.status)
 end
 
+---@section GETTERS
+
 function MnrPlayer:getMoney(moneyType)
     return self.money and self.money[moneyType] or 0
 end
+
+function MnrPlayer:getGroup(name)
+    local slot = _findByName(self.groups, name)
+
+    if not slot then
+        return false
+    end
+
+    return self.groups[slot], slot
+end
+
+function MnrPlayer:getGroupsByCategory(cat)
+    local result = {}
+    for slot, group in ipairs(self.groups) do
+        if type(group) == 'table' and group.cat == cat then
+            result[#result + 1] = { slot = slot, group = group }
+        end
+    end
+
+    return result
+end
+
+function MnrPlayer:hasDoc(docType)
+    if not self.docs or not self.docs[docType] then
+        return false
+    end
+
+    local doc = self.docs[docType]
+    if doc.expiry and doc.expiry < os.time() then
+        db.removeDoc(self.charId, docType)
+        self.docs[docType] = nil
+
+        return false
+    end
+
+    return true
+end
+
+---@section SETTERS
 
 function MnrPlayer:setMoney(moneyType, amount, operator)
     if not self.money or not moneyTypes[moneyType] then
@@ -243,27 +284,6 @@ function MnrPlayer:setGroup(slot, cat, name, grade)
     self.groups[slot] = { cat = cat, name = name, grade = grade, duty = false }
 
     return true
-end
-
-function MnrPlayer:getGroup(name)
-    local slot = _findByName(self.groups, name)
-
-    if not slot then
-        return false
-    end
-
-    return self.groups[slot], slot
-end
-
-function MnrPlayer:getGroupsByCategory(cat)
-    local result = {}
-    for slot, group in ipairs(self.groups) do
-        if type(group) == 'table' and group.cat == cat then
-            result[#result + 1] = { slot = slot, group = group }
-        end
-    end
-
-    return result
 end
 
 function MnrPlayer:removeGroup(slot)
@@ -379,22 +399,6 @@ function MnrPlayer:removeDoc(docType)
     return true
 end
 
-function MnrPlayer:hasDoc(docType)
-    if not self.docs or not self.docs[docType] then
-        return false
-    end
-
-    local doc = self.docs[docType]
-    if doc.expiry and doc.expiry < os.time() then
-        db.removeDoc(self.charId, docType)
-        self.docs[docType] = nil
-
-        return false
-    end
-
-    return true
-end
-
 function MnrPlayer:setStatus(name, value, operator)
     if not self.status[name] or not value or type(value) ~= 'number' then
         return false
@@ -417,8 +421,7 @@ function MnrPlayer:degradeStatus()
     for name, status in pairs(statusTypes) do
         if not status.degrade then goto skip_status end
 
-        self.status[name] = mnr.num.clamp(self.status[name] - status.degrade, status.min, status.max)
-        Player(self.source).state:set(name, self.status[name], true)
+        self:setStatus(name, status.degrade, '-')
 
         ::skip_status::
     end
