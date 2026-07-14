@@ -322,50 +322,6 @@ function MnrPlayer:setDuty(slot, duty)
     return true
 end
 
----@section GROUP RELATED SECONDARY METHODS
-
-function MnrPlayer:hasGroupPermission(name, permissions, action)
-    local slot = _findByName(self.groups, name)
-    if not slot then
-        return false
-    end
-
-    local group = groupsCache.getGroup(name)
-    if not group then
-        return false
-    end
-
-    return group:hasPermission(permissions, self.groups[slot].grade, action)
-end
-
-function MnrPlayer:getGroupMoney(groupName, moneyType)
-    local group = groupsCache.getGroup(groupName)
-
-    return group and group:getMoney(moneyType) or 0
-end
-
-function MnrPlayer:setGroupMoney(groupName, moneyType, amount, action)
-    if not self:hasGroupPermission(groupName, 'fund', action) then
-        return false
-    end
-
-    local group = groupsCache.getGroup(groupName)
-    if not group then
-        return false
-    end
-
-    local operator
-    if action == 'deposit' then
-        operator = '+'
-    elseif action == 'withdraw' then
-        operator = '-'
-    else
-        return false
-    end
-
-    return group and group:setMoney(moneyType, amount, operator)
-end
-
 ---@section DOCS METHODS
 
 function MnrPlayer:addDoc(docType, expiry)

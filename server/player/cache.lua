@@ -1,4 +1,3 @@
----@section PLAYERS STORAGE TABLES
 local _queue = {}
 local _players = {}
 local _users = {}
@@ -6,8 +5,6 @@ local _characters = {}
 
 ---@class PlayersCache
 local playersCache = {}
-
----@section QUEUE MANAGEMENT
 
 function playersCache.addQueue(loginId, userId)
     _queue[loginId] = userId
@@ -20,8 +17,6 @@ end
 function playersCache.removeQueue(loginId)
     _queue[loginId] = nil
 end
-
----@section PLAYERS MANAGEMENT
 
 function playersCache.addPlayer(src, player)
     _players[src] = player
@@ -47,8 +42,6 @@ function playersCache.removePlayer(src)
     _players[src] = nil
 end
 
----@section PLAYERS INDEXING
-
 function playersCache.addCharLink(src, charId)
     _characters[charId] = src
 end
@@ -56,8 +49,6 @@ end
 function playersCache.addUserLink(src, userId)
     _users[userId] = src
 end
-
----@section INDEXED GETTERS
 
 function playersCache.getByUserId(userId)
     local src = _users[userId]

@@ -58,15 +58,12 @@
 ---@field getGroup fun(self: self, name: string): table | false, number | nil
 ---@field removeGroup fun(self: self, slot: number): boolean, string | nil
 ---@field setGrade fun(self: self, slot: number, grade: number): boolean, string | nil
----@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                       Used to set player duty
----@field hasGroupPermission fun(self: self, name: string, permissions: 'boss' | 'fund', action: string): boolean Used to check if player haves group permissions
----@field getGroupMoney fun(self: self, groupName: string, moneyType: string): number
----@field setGroupMoney fun(self: self, groupName: string, moneyType: string, amount: number, action: 'deposit' | 'withdraw'): boolean
+---@field setDuty fun(self: self, slot: number, duty: boolean): boolean, string | nil                                   Used to set player duty
 ---@field addDoc fun(self: self, docType: string, expiry: integer): boolean
 ---@field removeDoc fun(self: self, docType: string): boolean, string | nil
 ---@field hasDoc fun(self: self, docType: string): boolean
----@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                         Used to set a specific field status value (operator can be applied to not get the value before the set)
----@field degradeStatus fun(self: self)                                                                                     Internal function to loop it simulating status decrease
+---@field setStatus fun(self: self, name: string, value: number, operator?: '+' | '-'): false | nil                     Used to set a specific field status value (operator can be applied to not get the value before the set)
+---@field degradeStatus fun(self: self)                                                                                 Internal function to loop it simulating status decrease
 
 ---@class PlayerDB
 ---@field userLogin fun(identifiers: table, maxCharacters: number): number | false                                      Used to register or update a user during login
