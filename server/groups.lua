@@ -1,5 +1,6 @@
 local groups = mnr.import('config/groups', 'lua', true)
 local groupsCache = mnr.import('server/groups/cache', 'lua', true)
+local playerCache = mnr.import('server/player/cache', 'lua', true)
 local MnrGroup = mnr.import('server/groups/class', 'lua', true)
 local db = mnr.import('server/groups/db', 'lua', true)
 
@@ -65,6 +66,58 @@ end
 
 CreateThread(dbGroupsCleanup)
 
+---@section Groups Actions
+
+---@param source number
+---@param targetCharId number
+---@param groupName string
+---@param action 'hire' | 'fire' | 'promote'
+---@param grade? number (Only promote)
+mnr.rpc.handle('mnr_core:server:GroupBossAction', function(source, targetCharId, groupName, action, grade)
+    local caller = playerCache.getPlayer(source)
+    if not caller then
+        return false, 'no_caller'
+    end
+
+    local group = groupsCache:getGroup(groupName)
+    if not group then
+        return false, 'no_group'
+    end
+
+    local callerGroup = caller:getGroup(groupName)
+    if not group:hasPermission('boss', callerGroup.grade, action) then
+        return false, 'no_perms'
+    end
+
+    local target = playerCache.getByCharId(targetCharId)
+    if not target then
+        return false, 'no_target'
+    end
+
+    local targetGroup, slot = target:getGroup(groupName)
+    if targetGroup and targetGroup.grade >= callerGroup.grade then
+        return false, 'no_allowed'
+    end
+
+    if grade and grade >= callerGroup.grade then
+        return false, 'no_allowed'
+    end
+
+    if action == 'hire' then
+        target:addGroup(group.cat, groupName, grade)
+    elseif action == 'fire' then
+        target:removeGroup(slot)
+    elseif action == 'promote' then
+        if not targetGroup then
+            return false, 'not_in_group'
+        end
+
+        target:setGrade(slot, grade)
+    end
+end)
+
+---@section Resource Stop
+
 AddEventHandler('onResourceStop', function(name)
     if GetCurrentResourceName() ~= name then return end
 
@@ -72,6 +125,8 @@ AddEventHandler('onResourceStop', function(name)
         group:saveMoney()
     end
 end)
+
+---@section Exports
 
 exports('GetGroupMoney', function(name, moneyType)
     local group = groupsCache.getGroup(name)
