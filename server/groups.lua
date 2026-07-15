@@ -68,25 +68,42 @@ CreateThread(dbGroupsCleanup)
 
 ---@section Groups Actions
 
+---@param caller MnrPlayer
+---@param group MnrGroup
+---@param callerGroup table
+---@param perms 'boss' | 'fund'
+---@param action 'hire' | 'fire' | 'promote' | 'view' | 'deposit' | 'withdraw'
+---@return boolean success, string | nil error
+local function actionCheck(caller, group, callerGroup, perms, action)
+    if not caller then
+        return false, 'no_caller'
+    end
+
+    if not group then
+        return false, 'no_group'
+    end
+
+    if not group:hasPermission(perms, callerGroup.grade, action) then
+        return false, 'no_perms'
+    end
+
+    return true, nil
+end
+
 ---@param source number
 ---@param targetCharId number
 ---@param groupName string
 ---@param action 'hire' | 'fire' | 'promote'
 ---@param grade? number (Only promote)
+---@return boolean success, string | nil error
 mnr.rpc.handle('mnr_core:server:GroupBossAction', function(source, targetCharId, groupName, action, grade)
     local caller = playerCache.getPlayer(source)
-    if not caller then
-        return false, 'no_caller'
-    end
-
     local group = groupsCache:getGroup(groupName)
-    if not group then
-        return false, 'no_group'
-    end
-
     local callerGroup = caller:getGroup(groupName)
-    if not group:hasPermission('boss', callerGroup.grade, action) then
-        return false, 'no_perms'
+
+    local success, err = actionCheck(caller, group, callerGroup, 'boss', action)
+    if not success then
+        return false, err
     end
 
     local target = playerCache.getByCharId(targetCharId)
@@ -114,6 +131,52 @@ mnr.rpc.handle('mnr_core:server:GroupBossAction', function(source, targetCharId,
 
         target:setGrade(slot, grade)
     end
+
+    return true, nil
+end)
+
+---@param source number
+---@param groupName string
+---@return table | false groupMoney, string | nil error
+mnr.rpc.handle('mnr_core:server:GroupFundView', function(source, groupName)
+    local caller = playerCache.getPlayer(source)
+    local group = groupsCache:getGroup(groupName)
+    local callerGroup = caller:getGroup(groupName)
+
+    local success, err = actionCheck(caller, group, callerGroup, 'fund', 'view')
+    if not success then
+        return false, err
+    end
+
+    return group.money, nil
+end)
+
+---@param source number
+---@param groupName string
+---@param action 'deposit' | 'withdraw'
+---@return boolean success, string | nil error
+mnr.rpc.handle('mnr_core:server:GroupFundAction', function(source, groupName, action, amount, account)
+    local caller = playerCache.getPlayer(source)
+    local group = groupsCache:getGroup(groupName)
+    local callerGroup = caller:getGroup(groupName)
+
+    local success, err = actionCheck(caller, group, callerGroup, 'fund', action)
+    if not success then
+        return false, err
+    end
+
+    if action == 'deposit' and caller.money[account] < amount then
+        return false, 'not_enough'
+    end
+
+    if action == 'withdraw' and group.money[account] < amount then
+        return false, 'not_enough'
+    end
+
+    caller:setMoney(account, amount, action == 'deposit' and '-' or '+')
+    group:setMoney(account, amount, action == 'deposit' and '+' or '-')
+
+    return true, nil
 end)
 
 ---@section Resource Stop
