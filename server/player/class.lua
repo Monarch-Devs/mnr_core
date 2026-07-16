@@ -325,8 +325,11 @@ end
 ---@section DOCS METHODS
 
 function MnrPlayer:addDoc(docType, expiry)
-    local issued = os.time()
+    if not docsTypes[docType] then
+        return false, 'invalid_type'
+    end
 
+    local issued = os.time()
     db.addDoc(self.charId, docType, issued, expiry)
     self.docs[docType] = { issued = issued, expiry = expiry }
 
@@ -358,6 +361,8 @@ function MnrPlayer:setStatus(name, value, operator)
     end
 
     Player(self.source).state:set(name, self.status[name], true)
+
+    return true
 end
 
 function MnrPlayer:degradeStatus()

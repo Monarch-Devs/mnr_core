@@ -213,7 +213,7 @@ local function getPlayerData(source, field, sub)
     if not sub then
         return player[field] and player[field] or false
     else
-        return player[field] and player[field][sub] or false
+        return type(player[field]) == 'table' and player[field][sub] or false
     end
 end
 

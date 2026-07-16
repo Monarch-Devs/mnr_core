@@ -68,28 +68,6 @@ CreateThread(dbGroupsCleanup)
 
 ---@section Groups Actions
 
----@param caller MnrPlayer
----@param group MnrGroup
----@param callerGroup table
----@param perms 'boss' | 'fund'
----@param action 'hire' | 'fire' | 'promote' | 'view' | 'deposit' | 'withdraw'
----@return boolean success, string | nil error
-local function actionCheck(caller, group, callerGroup, perms, action)
-    if not caller then
-        return false, 'no_caller'
-    end
-
-    if not group then
-        return false, 'no_group'
-    end
-
-    if not group:hasPermission(perms, callerGroup.grade, action) then
-        return false, 'no_perms'
-    end
-
-    return true, nil
-end
-
 ---@param source number
 ---@param targetCharId number
 ---@param groupName string
@@ -98,12 +76,22 @@ end
 ---@return boolean success, string | nil error
 mnr.rpc.handle('mnr_core:server:GroupBossAction', function(source, targetCharId, groupName, action, grade)
     local caller = playerCache.getPlayer(source)
-    local group = groupsCache:getGroup(groupName)
-    local callerGroup = caller:getGroup(groupName)
+    if not caller then
+        return false, 'no_caller'
+    end
 
-    local success, err = actionCheck(caller, group, callerGroup, 'boss', action)
-    if not success then
-        return false, err
+    local group = groupsCache.getGroup(groupName)
+    if not group then
+        return false, 'no_group'
+    end
+
+    local callerGroup = caller:getGroup(groupName)
+    if not callerGroup then
+        return false, 'no_member'
+    end
+
+    if not group:hasPermission('boss', callerGroup.grade, action) then
+        return false, 'no_perms'
     end
 
     local target = playerCache.getByCharId(targetCharId)
@@ -140,12 +128,22 @@ end)
 ---@return table | false groupMoney, string | nil error
 mnr.rpc.handle('mnr_core:server:GroupFundView', function(source, groupName)
     local caller = playerCache.getPlayer(source)
-    local group = groupsCache:getGroup(groupName)
-    local callerGroup = caller:getGroup(groupName)
+    if not caller then
+        return false, 'no_caller'
+    end
 
-    local success, err = actionCheck(caller, group, callerGroup, 'fund', 'view')
-    if not success then
-        return false, err
+    local group = groupsCache.getGroup(groupName)
+    if not group then
+        return false, 'no_group'
+    end
+
+    local callerGroup = caller:getGroup(groupName)
+    if not callerGroup then
+        return false, 'no_member'
+    end
+
+    if not group:hasPermission('fund', callerGroup.grade, 'view') then
+        return false, 'no_perms'
     end
 
     return group.money, nil
@@ -156,13 +154,28 @@ end)
 ---@param action 'deposit' | 'withdraw'
 ---@return boolean success, string | nil error
 mnr.rpc.handle('mnr_core:server:GroupFundAction', function(source, groupName, action, amount, account)
-    local caller = playerCache.getPlayer(source)
-    local group = groupsCache:getGroup(groupName)
-    local callerGroup = caller:getGroup(groupName)
+    amount = math.floor(tonumber(amount) or 0)
+    if amount <= 0 then
+        return false, 'invalid_amount'
+    end
 
-    local success, err = actionCheck(caller, group, callerGroup, 'fund', action)
-    if not success then
-        return false, err
+    local caller = playerCache.getPlayer(source)
+    if not caller then
+        return false, 'no_caller'
+    end
+
+    local group = groupsCache.getGroup(groupName)
+    if not group then
+        return false, 'no_group'
+    end
+
+    local callerGroup = caller:getGroup(groupName)
+    if not callerGroup then
+        return false, 'no_member'
+    end
+
+    if not group:hasPermission('fund', callerGroup.grade, action) then
+        return false, 'no_perms'
     end
 
     if action == 'deposit' and caller.money[account] < amount then
@@ -197,7 +210,7 @@ exports('GetGroupMoney', function(name, moneyType)
     return group and group:getMoney(moneyType) or 0
 end)
 
-exports('SetGroupMoney', function(name, moneyType, operator)
+exports('SetGroupMoney', function(name, moneyType, amount, operator)
     local group = groupsCache.getGroup(name)
 
     return group and group:setMoney(moneyType, amount, operator) or false

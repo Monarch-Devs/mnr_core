@@ -68,6 +68,10 @@ function MnrGroup:setMoney(moneyType, amount, operator)
 end
 
 function MnrGroup:hasPermission(permission, grade, action)
+    if permission ~= 'boss' and permission ~= 'fund' then
+        return false
+    end
+
     local entry = self[permission][grade]
 
     return entry ~= nil and entry[action] == true

@@ -39,7 +39,7 @@ function db.getUserCharacters(userId, slots)
     end
 
     for _, row in ipairs(rows) do
-        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = row.birthdate / 1000 }
+        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = row.birthdate / 1000 --[[@todo Convert to new mnr_sql format]]}
     end
 
     return characters
@@ -53,7 +53,7 @@ function db.getCharacter(userId, slot)
         return false, false
     end
 
-    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate / 1000 }
+    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate / 1000 --[[@todo Convert to new mnr_sql format]]}
 end
 
 local ADD_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
@@ -148,7 +148,7 @@ function db.getDocs(charId)
     local rows = mnr_sql.query(GET_DOCS, { charId }) or {}
     local result = {}
     for _, row in ipairs(rows) do
-        result[row.type] = { issued = row.issued / 1000, expiry = row.expiry and (row.expiry / 1000) or nil }
+        result[row.type] = { issued = row.issued / 1000 --[[@todo Convert to new mnr_sql format]], expiry = row.expiry and (row.expiry / 1000 --[[@todo Convert to new mnr_sql format]]) or nil }
     end
 
     return result

@@ -2,6 +2,7 @@
 return {
     [0x00] = true,                  ---@note null byte
     [0x22] = true,                  ---@note "
+    [0x27] = true,                  ---@note '
     [0x3B] = true,                  ---@note ;
     [0x3C] = true,                  ---@note <
     [0x3E] = true,                  ---@note >
