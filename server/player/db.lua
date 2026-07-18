@@ -39,7 +39,7 @@ function db.getUserCharacters(userId, slots)
     end
 
     for _, row in ipairs(rows) do
-        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = row.birthdate / 1000 --[[@todo Convert to new mnr_sql format]]}
+        characters[row.slot] = { charId = row.charId, firstname = row.firstname, lastname = row.lastname, gender = row.gender, origin = row.origin, birthdate = mnr.timestamp.unix(row.birthdate) }
     end
 
     return characters
@@ -53,12 +53,12 @@ function db.getCharacter(userId, slot)
         return false, false
     end
 
-    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = res.birthdate / 1000 --[[@todo Convert to new mnr_sql format]]}
+    return res.charId, { firstname = res.firstname, lastname = res.lastname, gender = res.gender, origin = res.origin, birthdate = mnr.timestamp.unix(res.birthdate) }
 end
 
 local ADD_CHARACTER = 'INSERT INTO `characters` (`userId`, `slot`, `firstname`, `lastname`, `gender`, `origin`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?)'
 function db.addCharacter(userId, slot, char)
-    local charId = mnr_sql.prepare(ADD_CHARACTER, { userId, slot, char.firstname, char.lastname, char.gender, char.origin, os.date('%Y-%m-%d', char.birthdate) })
+    local charId = mnr_sql.prepare(ADD_CHARACTER, { userId, slot, char.firstname, char.lastname, char.gender, char.origin, mnr.timestamp.string(char.birthdate, false) })
 
     return charId
 end
@@ -148,7 +148,7 @@ function db.getDocs(charId)
     local rows = mnr_sql.query(GET_DOCS, { charId }) or {}
     local result = {}
     for _, row in ipairs(rows) do
-        result[row.type] = { issued = row.issued / 1000 --[[@todo Convert to new mnr_sql format]], expiry = row.expiry and (row.expiry / 1000 --[[@todo Convert to new mnr_sql format]]) or nil }
+        result[row.type] = { issued = mnr.timestamp.unix(row.issued), expiry = row.expiry and mnr.timestamp.unix(row.expiry) or nil }
     end
 
     return result
@@ -156,7 +156,7 @@ end
 
 local SAVE_DOC = 'INSERT INTO `char_docs` (`charId`, `type`, `issued`, `expiry`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `expiry` = VALUES(`expiry`)'
 function db.addDoc(charId, docType, issued, expiry)
-    mnr_sql.prepare(SAVE_DOC, { charId, docType, os.date('%Y-%m-%d', issued), expiry and os.date('%Y-%m-%d', expiry) or nil })
+    mnr_sql.prepare(SAVE_DOC, { charId, docType, mnr.timestamp.string(issued, false), expiry and mnr.timestamp.string(expiry, false) or nil })
 end
 
 local DELETE_DOC = 'DELETE FROM `char_docs` WHERE `charId` = ? AND `type` = ?'
